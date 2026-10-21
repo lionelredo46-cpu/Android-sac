@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../config/flavor_config.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_text_styles.dart';
 import '../network/connectivity_service.dart';
@@ -11,7 +12,8 @@ class OfflineBanner extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status = ref.watch(connectivityProvider);
 
-    if (status == NetworkStatus.online) {
+    // Démo autonome : les données sont sur l'appareil, le réseau est inutile.
+    if (status == NetworkStatus.online || FlavorConfig.instance.localBackend) {
       return const SizedBox.shrink();
     }
 

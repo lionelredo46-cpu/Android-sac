@@ -46,6 +46,13 @@ android {
             versionNameSuffix = "-dev"
             resValue("string", "app_name", "UniParent Dev")
         }
+        // Démo autonome (lib/main_demo.dart) : API simulée et base de données sur le téléphone.
+        create("demo") {
+            dimension = "env"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+            resValue("string", "app_name", "UniParent Démo")
+        }
         create("staging") {
             dimension = "env"
             applicationIdSuffix = ".staging"

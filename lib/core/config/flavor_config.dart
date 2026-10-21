@@ -8,6 +8,9 @@ class FlavorConfig {
   final String appName;
   final String apiBaseUrl;
   final bool enableLogging;
+
+  /// Démo autonome : l'API est simulée sur l'appareil (voir core/demo/).
+  final bool localBackend;
   final Duration connectTimeout;
   final Duration receiveTimeout;
 
@@ -18,6 +21,7 @@ class FlavorConfig {
     required this.appName,
     required this.apiBaseUrl,
     required this.enableLogging,
+    required this.localBackend,
     required this.connectTimeout,
     required this.receiveTimeout,
   });
@@ -27,6 +31,7 @@ class FlavorConfig {
     required String appName,
     required String apiBaseUrl,
     bool enableLogging = false,
+    bool localBackend = false,
     Duration connectTimeout = const Duration(seconds: 15),
     Duration receiveTimeout = const Duration(seconds: 30),
   }) {
@@ -36,6 +41,7 @@ class FlavorConfig {
       appName: appName,
       apiBaseUrl: override.isNotEmpty ? override : apiBaseUrl,
       enableLogging: enableLogging,
+      localBackend: localBackend,
       connectTimeout: connectTimeout,
       receiveTimeout: receiveTimeout,
     );

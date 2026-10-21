@@ -6,7 +6,8 @@ Ce dossier contient les installables prêts à l’emploi et explique comment le
 livrables/
 ├── GUIDE-COMPILATION.md          ← ce fichier
 ├── android/
-│   ├── UniParent-demo-1.0.0+1.apk   ← à installer sur un téléphone pour la démo
+│   ├── UniParent-demo-1.0.0+1.apk   ← démo autonome : s’installe et fonctionne seule
+│   ├── UniParent-dev-1.0.0+1.apk    ← développement : utilise l’API du PC (réseau Wi-Fi)
 │   ├── UniParent-prod-1.0.0+1.apk   ← version production (serveur en ligne requis)
 │   ├── UniParent-prod-1.0.0+1.aab   ← à déposer sur Google Play
 │   └── SHA256SUMS.txt               ← empreintes pour vérifier les fichiers
@@ -20,7 +21,8 @@ livrables/
 
 | Fichier | Pour quoi faire | Serveur utilisé |
 |---|---|---|
-| `UniParent-demo-*.apk` | Tester sur un vrai téléphone Android, avec les comptes de démonstration affichés sur l’écran de connexion | L’API qui tourne sur ce PC (`http://192.168.1.152:3000`) |
+| `UniParent-demo-*.apk` | Présenter l’application sur n’importe quel téléphone Android, même sans Internet | Aucun : API simulée et base de données sur le téléphone |
+| `UniParent-dev-*.apk` | Tester avec le vrai serveur (back-office, données partagées) | L’API qui tourne sur ce PC (`http://<IP-du-PC>:3000`) |
 | `UniParent-prod-*.apk` | Installation directe de la version finale | `https://api.uniparent.aframgabon.com` (à déployer) |
 | `UniParent-prod-*.aab` | Publication sur le Google Play Store | idem |
 | IPA iOS | iPhone / TestFlight / App Store | voir § 4 |
@@ -31,7 +33,29 @@ livrables/
 
 ## 2. Installer l’APK de démonstration sur un téléphone Android
 
-### 2.1 Démarrer les serveurs sur le PC
+### 2.1 Démo autonome (recommandé)
+
+1. Copiez `UniParent-demo-*.apk` sur le téléphone (câble USB, WhatsApp, Google Drive…), ou avec le câble : `adb install -r UniParent-demo-1.0.0+1.apk`.
+2. Ouvrez le fichier et autorisez « Installer des applications inconnues » si Android le demande.
+3. Lancez **UniParent Démo**, passez l’introduction, puis touchez un compte dans **Comptes de démonstration**.
+
+Aucun serveur ni réseau n’est nécessaire : l’application embarque une base de données locale (hive) remplie au premier lancement avec les données de démonstration, recalées sur la semaine en cours. Les traitements du back-office sont simulés quelques secondes après chaque action :
+
+| Action dans l’application | Ce qui est simulé |
+|---|---|
+| Payer une facture (Mobile Money / carte) | Validation par l’opérateur après ~8 s : facture et échéances à jour, reçu PDF, notification au parent et à l’étudiant |
+| Écrire au service (messagerie) | Réponse du service concerné après ~15 s |
+| Demander un rendez-vous | Confirmation avec le lieu après ~20 s |
+| Justifier une absence, déposer une pièce | Validation par la scolarité après ~30 s |
+| Demander une attestation | Document PDF disponible après ~30 s |
+
+Pour revenir aux données d’origine : **Plus → Paramètres → Réinitialiser les données de démo**.
+
+Les données embarquées (`assets/demo/demo_db.json`) proviennent de l’API réelle. Pour les régénérer après une modification du seed : démarrer l’API (§ 2.2), `cd backend && npm run prisma:seed`, puis `node scripts/export-demo-db.mjs` et relancer le seed (l’export joue le parcours d’activation).
+
+### 2.2 Version de développement (API du PC)
+
+#### Démarrer les serveurs sur le PC
 
 ```powershell
 cd E:\ANDROID
@@ -41,7 +65,7 @@ npm run build
 npm run start:prod                    # API sur le port 3000
 ```
 
-### 2.2 Autoriser le téléphone à joindre le PC
+#### Autoriser le téléphone à joindre le PC
 
 Le téléphone et le PC doivent être sur **le même réseau Wi-Fi**. Ouvrez le port 3000 dans le pare-feu Windows (PowerShell **en administrateur**, une seule fois) :
 
@@ -53,11 +77,11 @@ Vérifiez depuis le navigateur du téléphone : `http://192.168.1.152:3000/api/v
 
 > Si l’adresse IP du PC a changé (commande `ipconfig`, ligne « Adresse IPv4 » de la carte Wi-Fi), régénérez l’APK de démo avec la nouvelle IP (§ 3.3).
 
-### 2.3 Installer
+#### Installer
 
-1. Copiez `UniParent-demo-*.apk` sur le téléphone (câble USB, WhatsApp, Google Drive…), ou avec le câble : `adb install -r UniParent-demo-1.0.0+1.apk`.
-2. Ouvrez le fichier sur le téléphone et autorisez « Installer des applications inconnues » si Android le demande.
-3. Lancez **UniParent Dev**, passez l’introduction, puis touchez un compte dans **Comptes de démonstration** : la connexion est automatique.
+Installez `UniParent-dev-*.apk` comme ci-dessus et lancez **UniParent Dev** : les comptes de démonstration se connectent à l’API du PC.
+
+### 2.3 Comptes de démonstration
 
 | Compte | Ce qu’on peut tester |
 |---|---|
@@ -66,7 +90,7 @@ Vérifiez depuis le navigateur du téléphone : `http://192.168.1.152:3000/api/v
 | Étudiante — Grâce OBIANG | dossier incomplet, autre filière |
 | Mère à activer — Clarisse OBIANG | parcours d’activation (code `AFRAM-2026-ACTIVATE`, le code SMS s’affiche à l’écran en démo) |
 
-Mot de passe de tous les comptes : `Afram2026!`. Pour remettre les données de démonstration à zéro : `cd backend && npm run prisma:seed`.
+Mot de passe de tous les comptes : `Afram2026!`. Pour remettre à zéro les données du serveur : `cd backend && npm run prisma:seed` (la démo autonome se réinitialise depuis ses Paramètres).
 
 ---
 
@@ -191,5 +215,6 @@ Avant la mise en ligne : déployer l’API en HTTPS (`docker-compose.prod.yml`),
 | L’app de démo affiche « Connexion impossible » | PC et téléphone sur le même Wi-Fi ? API démarrée ? Port 3000 ouvert (§ 2.2) ? IP du PC inchangée ? |
 | `Kotlin… Could not close incremental caches` | Déjà corrigé (`kotlin.incremental=false` dans `android/gradle.properties`). |
 | `requires core library desugaring` | Déjà corrigé dans `android/app/build.gradle.kts`. |
+| Écran noir au lancement d’un APK release | R8 renommait les classes Kotlin appelées par JNI (`shared_preferences`, `path_provider`). Déjà corrigé dans `android/app/proguard-rules.pro` ; diagnostic : `adb logcat \| grep flutter`. |
 | Disque C: plein pendant un build | Les caches doivent être sur E: : variables `GRADLE_USER_HOME=E:\DevTools\gradle` et `PUB_CACHE=E:\DevTools\pub-cache`. |
 | `Installation bloquée` sur le téléphone | Paramètres → Sécurité → autoriser l’installation depuis la source utilisée (Fichiers, Chrome…). Désinstaller une ancienne version signée différemment. |

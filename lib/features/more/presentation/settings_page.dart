@@ -70,6 +70,29 @@ class SettingsPage extends ConsumerWidget {
         ),
         _Header(l.notificationPrefs),
         const _NotificationPrefs(),
+        if (ref.watch(localBackendProvider) case final local?) ...[
+          const _Header('Mode démo'),
+          ListTile(
+            leading: const Icon(Icons.restart_alt_rounded),
+            title: const Text('Réinitialiser les données de démo'),
+            subtitle: const Text('Factures, messages, notifications… reviennent à leur état initial'),
+            onTap: () async {
+              final ok = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  content: const Text('Réinitialiser toutes les données de démonstration ? Vous serez déconnecté.'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(l.cancel)),
+                    FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(l.confirm)),
+                  ],
+                ),
+              );
+              if (ok != true) return;
+              await local.db.reset();
+              await ref.read(sessionProvider.notifier).logout();
+            },
+          ),
+        ],
         const SizedBox(height: 32),
       ]),
     );

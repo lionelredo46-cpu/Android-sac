@@ -69,7 +69,12 @@ class _DemoAccountsPanelState extends ConsumerState<DemoAccountsPanel> {
         ]),
         Padding(
           padding: const EdgeInsets.only(top: 2, bottom: 8),
-          child: Text('Touchez un compte pour vous connecter (mot de passe $demoPassword)', style: AppTextStyles.bodySmall),
+          child: Text(
+            FlavorConfig.instance.localBackend
+                ? 'Démo autonome : données stockées sur ce téléphone, aucune connexion requise. Touchez un compte (mot de passe $demoPassword).'
+                : 'Touchez un compte pour vous connecter (mot de passe $demoPassword)',
+            style: AppTextStyles.bodySmall,
+          ),
         ),
         for (final a in demoAccounts)
           Card(

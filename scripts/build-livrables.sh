@@ -19,15 +19,19 @@ if [ "${SKIP_CODEGEN:-0}" != "1" ]; then
   flutter gen-l10n
 fi
 
-echo "==> 1/3 APK de démonstration (API http://$LAN_IP:3000, comptes de test visibles)"
-flutter build apk --release --flavor dev -t lib/main_dev.dart --dart-define=API_BASE_URL="http://$LAN_IP:3000"
-cp build/app/outputs/flutter-apk/app-dev-release.apk "$OUT/UniParent-demo-$VERSION.apk"
+echo "==> 1/4 APK de démo autonome (API simulée et base de données sur le téléphone, aucun serveur)"
+flutter build apk --release --flavor demo -t lib/main_demo.dart
+cp build/app/outputs/flutter-apk/app-demo-release.apk "$OUT/UniParent-demo-$VERSION.apk"
 
-echo "==> 2/3 APK de production (API https://api.uniparent.aframgabon.com)"
+echo "==> 2/4 APK de développement (API http://$LAN_IP:3000 du PC, comptes de test visibles)"
+flutter build apk --release --flavor dev -t lib/main_dev.dart --dart-define=API_BASE_URL="http://$LAN_IP:3000"
+cp build/app/outputs/flutter-apk/app-dev-release.apk "$OUT/UniParent-dev-$VERSION.apk"
+
+echo "==> 3/4 APK de production (API https://api.uniparent.aframgabon.com)"
 flutter build apk --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols/prod
 cp build/app/outputs/flutter-apk/app-prod-release.apk "$OUT/UniParent-prod-$VERSION.apk"
 
-echo "==> 3/3 App Bundle de production (Google Play)"
+echo "==> 4/4 App Bundle de production (Google Play)"
 flutter build appbundle --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols/prod
 cp build/app/outputs/bundle/prodRelease/app-prod-release.aab "$OUT/UniParent-prod-$VERSION.aab"
 
