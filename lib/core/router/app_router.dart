@@ -30,7 +30,11 @@ import '../../features/more/presentation/scan_page.dart';
 import '../../features/more/presentation/settings_page.dart';
 import '../../features/notifications/presentation/notifications_page.dart';
 import '../../features/splash/presentation/splash_page.dart';
+import '../../features/timetable/domain/nfc_payload.dart';
+import '../../features/timetable/domain/timetable_models.dart';
 import '../../features/timetable/presentation/calendar_page.dart';
+import '../../features/timetable/presentation/shared_timetable_page.dart';
+import '../../features/timetable/presentation/slot_detail_page.dart';
 import '../../features/timetable/presentation/timetable_page.dart';
 import '../../features/tracking/presentation/tracking_page.dart';
 import '../providers.dart';
@@ -62,7 +66,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final session = ref.read(sessionProvider);
       final loc = state.matchedLocation;
-      if (session.isLoading) return loc == RoutePaths.splash ? null : RoutePaths.splash;
+      // Lien profond ouvert application fermée (ex. tag NFC /salle/S104) : la destination est
+      // conservée pendant le chargement de session et le verrouillage, puis rejointe.
+      final from = state.uri.queryParameters['from'];
+      String hold(String target) {
+        final next = loc == RoutePaths.splash || loc == RoutePaths.lock ? from : state.uri.toString();
+        return next == null || next == RoutePaths.splash ? target : Uri(path: target, queryParameters: {'from': next}).toString();
+      }
+
+      if (session.isLoading) return loc == RoutePaths.splash ? null : hold(RoutePaths.splash);
 
       final loggedIn = session.value != null;
       final isPublic = RoutePaths.publicRoutes.contains(loc);
@@ -71,8 +83,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         return isPublic && loc != RoutePaths.splash ? null : RoutePaths.login;
       }
 
-      if (ref.read(appLockProvider)) return loc == RoutePaths.lock ? null : RoutePaths.lock;
-      if (isPublic || loc == RoutePaths.lock) return RoutePaths.home;
+      if (ref.read(appLockProvider)) return loc == RoutePaths.lock ? null : hold(RoutePaths.lock);
+      if (isPublic || loc == RoutePaths.lock) {
+        final target = from == null ? null : Uri.tryParse(from);
+        final internal = target != null && !target.hasScheme && target.path.startsWith('/') && !RoutePaths.publicRoutes.contains(target.path);
+        return internal ? from : RoutePaths.home;
+      }
       return null;
     },
     routes: [
@@ -97,7 +113,25 @@ final routerProvider = Provider<GoRouter>((ref) {
       page('/finances/pay/:id', (s) => PaymentPage(invoiceId: s.pathParameters['id']!)),
       page('/finances/payment/:id', (s) => PaymentStatusPage(paymentId: s.pathParameters['id']!, initialUrl: s.extra as String?)),
       page('/tracking/justify', (s) => JustifyAbsencePage(item: s.extra! as AttendanceItem)),
-      page(RoutePaths.timetable, (_) => const TimetablePage()),
+      page(RoutePaths.timetable, (s) {
+        final q = s.uri.queryParameters;
+        return TimetablePage(initialWeek: q['week'], sheet: q['sheet'], nfcMode: q['nfc']);
+      }),
+      GoRoute(
+        path: '/timetable/slot/:id',
+        parentNavigatorKey: rootNavigatorKey,
+        // Fondu : la carte du cours vole vers sa place (Hero) pendant la transition.
+        pageBuilder: (_, s) => CustomTransitionPage(
+          key: s.pageKey,
+          transitionDuration: const Duration(milliseconds: 420),
+          reverseTransitionDuration: const Duration(milliseconds: 320),
+          transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: CurvedAnimation(parent: animation, curve: Curves.easeOutCubic), child: child),
+          child: s.extra is TimetableSlot ? SlotDetailPage(slot: s.extra! as TimetableSlot) : const TimetablePage(),
+        ),
+      ),
+      page(RoutePaths.timetableShared, (s) => s.extra is NfcTimetableShare ? SharedTimetablePage(share: s.extra! as NfcTimetableShare) : const TimetablePage()),
+      // Tag NFC de salle (URI https://uniparent.aframgabon.com/salle/<code>) lu application fermée.
+      page('/salle/:code', (s) => TimetablePage(roomCode: s.pathParameters['code'])),
       page(RoutePaths.calendar, (_) => const CalendarPage()),
       page(RoutePaths.newTicket, (_) => const NewTicketPage()),
       page('/messages/thread/:id', (s) => ConversationPage(conversationId: s.pathParameters['id']!)),

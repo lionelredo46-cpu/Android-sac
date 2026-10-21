@@ -69,6 +69,9 @@ dependencies:
   uuid: ^4.6.0
   timeago: ^3.7.1
   http_parser: ^4.1.2
+  flutter_nfc_kit: ^3.7.0
+  ndef: ^0.4.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:

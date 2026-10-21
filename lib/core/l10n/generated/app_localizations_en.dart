@@ -854,4 +854,374 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emergencyContact => 'Emergency contact';
+
+  @override
+  String get ttToday => 'Today';
+
+  @override
+  String get ttLiveNow => 'LIVE NOW';
+
+  @override
+  String get ttNow => 'Now';
+
+  @override
+  String get ttViewDay => 'Day';
+
+  @override
+  String get ttViewWeek => 'Week';
+
+  @override
+  String get ttNfc => 'NFC';
+
+  @override
+  String get ttExport => 'Export';
+
+  @override
+  String get ttPrevWeek => 'Previous week';
+
+  @override
+  String get ttNextWeek => 'Next week';
+
+  @override
+  String get ttNoClassDay => 'No class this day';
+
+  @override
+  String get ttNoClassDayBody =>
+      'A good time to revise or move your projects forward.';
+
+  @override
+  String get ttNoClassWeek => 'No class this week';
+
+  @override
+  String ttClassesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count classes',
+      one: '1 class',
+      zero: 'No class',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ttPresent => 'Present';
+
+  @override
+  String get ttAbsent => 'Absent';
+
+  @override
+  String get ttLate => 'Late';
+
+  @override
+  String get ttExcused => 'Excused';
+
+  @override
+  String get ttTeacher => 'Teacher';
+
+  @override
+  String get ttRoomLabel => 'Room';
+
+  @override
+  String get ttCampus => 'Campus';
+
+  @override
+  String get ttDuration => 'Duration';
+
+  @override
+  String ttMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get ttAttendanceLabel => 'Roll call';
+
+  @override
+  String get ttAttendancePending => 'Roll call has not taken place yet';
+
+  @override
+  String get ttSlotDetail => 'Class details';
+
+  @override
+  String get ttSelectSlotHint => 'Select a class to see its details.';
+
+  @override
+  String get ttExportPreview => 'Export preview';
+
+  @override
+  String get ttAddToCalendar => 'Add to my calendar';
+
+  @override
+  String get ttCheckRoom => 'Check my room';
+
+  @override
+  String get ttShowPanel => 'Show panel';
+
+  @override
+  String get ttHidePanel => 'Hide panel';
+
+  @override
+  String get ttExportTitle => 'Export the week';
+
+  @override
+  String ttExportSubtitle(String range) {
+    return 'Week of $range';
+  }
+
+  @override
+  String get ttPdfTitle => 'Editorial PDF';
+
+  @override
+  String get ttPdfBody =>
+      'Vector A4, colour per subject, authenticity QR code.';
+
+  @override
+  String get ttLandscape => 'Landscape';
+
+  @override
+  String get ttPortrait => 'Portrait';
+
+  @override
+  String get ttPreviewPdf => 'Preview, print and share';
+
+  @override
+  String get ttIcsTitle => 'Calendar (.ics)';
+
+  @override
+  String ttIcsBody(int minutes) {
+    return 'Google Calendar, Apple Calendar or Outlook, with a reminder $minutes min before each class.';
+  }
+
+  @override
+  String get ttIcsAction => 'Open in calendar';
+
+  @override
+  String get ttImageTitle => 'Shareable image';
+
+  @override
+  String get ttImageBody =>
+      'Story or pocket card format, for WhatsApp, SMS or chat.';
+
+  @override
+  String get ttStory => 'Story 9:16';
+
+  @override
+  String get ttSquare => 'Card 1:1';
+
+  @override
+  String get ttShareImage => 'Share image';
+
+  @override
+  String ttCalendarName(String name) {
+    return 'AFRAM — $name';
+  }
+
+  @override
+  String get ttPdfDocTitle => 'Timetable';
+
+  @override
+  String get ttPdfStudent => 'Student:';
+
+  @override
+  String get ttPdfMatricule => 'Student ID';
+
+  @override
+  String get ttPdfGroup => 'Group';
+
+  @override
+  String get ttPdfGenerated => 'Generated on';
+
+  @override
+  String get ttPdfAuthentic => 'Authentic document';
+
+  @override
+  String get ttPdfVerifyHint => 'Scan the QR code to verify this schedule.';
+
+  @override
+  String get ttPdfTime => 'Time';
+
+  @override
+  String get ttPdfCourse => 'Class';
+
+  @override
+  String get ttPdfStatus => 'Status';
+
+  @override
+  String get ttPdfPage => 'Page';
+
+  @override
+  String get ttReminder => 'Reminder';
+
+  @override
+  String get ttStoryTitle => 'My week';
+
+  @override
+  String ttStoryMore(int count) {
+    return '+$count more classes';
+  }
+
+  @override
+  String get ttStoryFooter => 'Made with UniParent AFRAM';
+
+  @override
+  String get ttNfcTitle => 'NFC hub';
+
+  @override
+  String get ttNfcSync => 'Tap-to-Sync';
+
+  @override
+  String get ttNfcRoom => 'My room';
+
+  @override
+  String get ttNfcAttendance => 'Check-in';
+
+  @override
+  String get ttNfcCard => 'Student card';
+
+  @override
+  String get ttNfcSyncHint =>
+      'Hold two phones back to back to swap this week\'s timetable, no network needed.';
+
+  @override
+  String get ttNfcRoomHint =>
+      'Hold your phone near the NFC tag at the room or lecture hall entrance.';
+
+  @override
+  String get ttNfcAttendanceHint =>
+      'Hold your phone near the check-in terminal or badge.';
+
+  @override
+  String get ttNfcCardHint =>
+      'Hold a student card near the phone (MIFARE, DESFire or NFC).';
+
+  @override
+  String get ttNfcScan => 'Start scanning';
+
+  @override
+  String get ttNfcScanning => 'Searching…';
+
+  @override
+  String get ttNfcReceive => 'Receive';
+
+  @override
+  String get ttNfcShare => 'Share my week';
+
+  @override
+  String get ttNfcSharing =>
+      'Ready: bring the other phone close, screen on and unlocked.';
+
+  @override
+  String get ttNfcStopSharing => 'Stop sharing';
+
+  @override
+  String get ttNfcShareUnavailable =>
+      'Sending over NFC is not available on this device: you can only receive.';
+
+  @override
+  String get ttNfcSimulate => 'Simulate a tag (demo)';
+
+  @override
+  String get ttNfcUnavailable => 'This device has no NFC chip.';
+
+  @override
+  String get ttNfcDisabled => 'NFC is turned off: enable it in settings.';
+
+  @override
+  String get ttNfcIosPrompt => 'Hold your iPhone near the NFC tag';
+
+  @override
+  String get ttNfcIosSuccess => 'Read successfully';
+
+  @override
+  String get ttNfcTimeout => 'No tag detected. Try again.';
+
+  @override
+  String get ttNfcCancelled => 'Scan cancelled.';
+
+  @override
+  String get ttNfcUnreadable => 'Unreadable tag or unknown format.';
+
+  @override
+  String get ttNfcRetry => 'Scan again';
+
+  @override
+  String get ttRoomYes => 'Yes, this is your room';
+
+  @override
+  String get ttRoomNo => 'This is not your room';
+
+  @override
+  String ttRoomExpected(String course, String room, String campus) {
+    return '“$course” takes place in $room ($campus).';
+  }
+
+  @override
+  String get ttRoomNoCourse => 'No more classes scheduled for you today.';
+
+  @override
+  String ttRoomToday(String room) {
+    return 'Your classes in $room today';
+  }
+
+  @override
+  String get ttRoomNone =>
+      'None of your classes takes place in this room today.';
+
+  @override
+  String get ttAttendanceOk => 'Check-in confirmed';
+
+  @override
+  String ttAttendanceLate(int minutes) {
+    return '$minutes min late recorded';
+  }
+
+  @override
+  String ttCardLinked(String name) {
+    return '$name\'s card';
+  }
+
+  @override
+  String get ttCardOpen => 'Open their timetable';
+
+  @override
+  String get ttCardUnknown => 'Card not linked';
+
+  @override
+  String get ttCardLinkHint =>
+      'Link this card to a student: it will then open their timetable in one tap.';
+
+  @override
+  String ttCardLinkTo(String name) {
+    return 'Link to $name';
+  }
+
+  @override
+  String ttCardUid(String uid, String technology) {
+    return 'ID $uid · $technology';
+  }
+
+  @override
+  String ttShareReceived(String name) {
+    return '$name\'s timetable received';
+  }
+
+  @override
+  String get ttShareView => 'View';
+
+  @override
+  String get ttSharedTitle => 'Shared timetable';
+
+  @override
+  String ttSharedBy(String name, String date) {
+    return 'Shared by $name on $date';
+  }
+
+  @override
+  String get ttNfcTooLarge => 'This week is too large to share over NFC.';
+
+  @override
+  String get ttIcsScopeWeek => 'This week';
+
+  @override
+  String get ttIcsScopeTerm => '8 weeks';
 }

@@ -52,7 +52,6 @@ class ApiEndpoints {
 
   // Emploi du temps & calendrier
   static String timetable(String childId) => '$v/children/$childId/timetable';
-  static String timetableIcs(String childId) => '$v/children/$childId/timetable.ics';
   static const String calendarEvents = '$v/calendar/events';
 
   // Messagerie, annonces, rendez-vous

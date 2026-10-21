@@ -21,6 +21,8 @@ class RoutePaths {
   static String pay(String invoiceId) => '/finances/pay/$invoiceId';
   static String paymentStatus(String paymentId) => '/finances/payment/$paymentId';
   static const timetable = '/timetable';
+  static String timetableSlot(String id) => '/timetable/slot/$id';
+  static const timetableShared = '/timetable/shared';
   static const calendar = '/calendar';
   static const newTicket = '/messages/new';
   static String conversation(String id) => '/messages/thread/$id';

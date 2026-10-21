@@ -34,6 +34,58 @@ Map<String, dynamic> _$TimetableSlotToJson(_TimetableSlot instance) =>
       'campus': instance.campus,
     };
 
+_TimetableExportRequest _$TimetableExportRequestFromJson(
+  Map<String, dynamic> json,
+) => _TimetableExportRequest(
+  channel: $enumDecode(_$ExportChannelEnumMap, json['channel']),
+  weekStart: DateTime.parse(json['weekStart'] as String),
+  studentId: json['studentId'] as String,
+  studentName: json['studentName'] as String,
+  matricule: json['matricule'] as String?,
+  groupName: json['groupName'] as String?,
+  programName: json['programName'] as String?,
+  layout:
+      $enumDecodeNullable(_$PdfLayoutEnumMap, json['layout']) ??
+      PdfLayout.landscape,
+  imageFormat:
+      $enumDecodeNullable(_$ImageFormatEnumMap, json['imageFormat']) ??
+      ImageFormat.story,
+  includeCancelled: json['includeCancelled'] as bool? ?? true,
+  alarmMinutes: (json['alarmMinutes'] as num?)?.toInt() ?? 15,
+);
+
+Map<String, dynamic> _$TimetableExportRequestToJson(
+  _TimetableExportRequest instance,
+) => <String, dynamic>{
+  'channel': _$ExportChannelEnumMap[instance.channel]!,
+  'weekStart': instance.weekStart.toIso8601String(),
+  'studentId': instance.studentId,
+  'studentName': instance.studentName,
+  'matricule': instance.matricule,
+  'groupName': instance.groupName,
+  'programName': instance.programName,
+  'layout': _$PdfLayoutEnumMap[instance.layout]!,
+  'imageFormat': _$ImageFormatEnumMap[instance.imageFormat]!,
+  'includeCancelled': instance.includeCancelled,
+  'alarmMinutes': instance.alarmMinutes,
+};
+
+const _$ExportChannelEnumMap = {
+  ExportChannel.pdf: 'pdf',
+  ExportChannel.ics: 'ics',
+  ExportChannel.image: 'image',
+};
+
+const _$PdfLayoutEnumMap = {
+  PdfLayout.landscape: 'landscape',
+  PdfLayout.portrait: 'portrait',
+};
+
+const _$ImageFormatEnumMap = {
+  ImageFormat.story: 'story',
+  ImageFormat.square: 'square',
+};
+
 _Timetable _$TimetableFromJson(Map<String, dynamic> json) => _Timetable(
   creneaux:
       (json['creneaux'] as List<dynamic>?)

@@ -15,4 +15,5 @@ class StorageKeys {
   static const String biometricEnabled = 'pref_biometric_enabled';
   static const String notificationsEnabled = 'pref_notifications_enabled';
   static const String hasCompletedOnboarding = 'pref_has_completed_onboarding';
+  static const String nfcCards = 'pref_nfc_cards';
 }

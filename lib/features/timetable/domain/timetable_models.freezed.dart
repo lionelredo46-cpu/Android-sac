@@ -311,6 +311,306 @@ as String,
 
 
 /// @nodoc
+mixin _$TimetableExportRequest {
+
+ ExportChannel get channel; DateTime get weekStart; String get studentId; String get studentName; String? get matricule; String? get groupName; String? get programName; PdfLayout get layout; ImageFormat get imageFormat; bool get includeCancelled; int get alarmMinutes;
+/// Create a copy of TimetableExportRequest
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$TimetableExportRequestCopyWith<TimetableExportRequest> get copyWith => _$TimetableExportRequestCopyWithImpl<TimetableExportRequest>(this as TimetableExportRequest, _$identity);
+
+  /// Serializes this TimetableExportRequest to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  final _this = this as TimetableExportRequest;
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TimetableExportRequest&&(identical(other.channel, _this.channel) || other.channel == _this.channel)&&(identical(other.weekStart, _this.weekStart) || other.weekStart == _this.weekStart)&&(identical(other.studentId, _this.studentId) || other.studentId == _this.studentId)&&(identical(other.studentName, _this.studentName) || other.studentName == _this.studentName)&&(identical(other.matricule, _this.matricule) || other.matricule == _this.matricule)&&(identical(other.groupName, _this.groupName) || other.groupName == _this.groupName)&&(identical(other.programName, _this.programName) || other.programName == _this.programName)&&(identical(other.layout, _this.layout) || other.layout == _this.layout)&&(identical(other.imageFormat, _this.imageFormat) || other.imageFormat == _this.imageFormat)&&(identical(other.includeCancelled, _this.includeCancelled) || other.includeCancelled == _this.includeCancelled)&&(identical(other.alarmMinutes, _this.alarmMinutes) || other.alarmMinutes == _this.alarmMinutes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+  final _this = this as TimetableExportRequest;
+  return Object.hash(runtimeType,_this.channel,_this.weekStart,_this.studentId,_this.studentName,_this.matricule,_this.groupName,_this.programName,_this.layout,_this.imageFormat,_this.includeCancelled,_this.alarmMinutes);
+}
+
+@override
+String toString() {
+  final _this = this as TimetableExportRequest;
+  return 'TimetableExportRequest(channel: ${_this.channel}, weekStart: ${_this.weekStart}, studentId: ${_this.studentId}, studentName: ${_this.studentName}, matricule: ${_this.matricule}, groupName: ${_this.groupName}, programName: ${_this.programName}, layout: ${_this.layout}, imageFormat: ${_this.imageFormat}, includeCancelled: ${_this.includeCancelled}, alarmMinutes: ${_this.alarmMinutes})';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $TimetableExportRequestCopyWith<$Res>  {
+  factory $TimetableExportRequestCopyWith(TimetableExportRequest value, $Res Function(TimetableExportRequest) _then) = _$TimetableExportRequestCopyWithImpl;
+@useResult
+$Res call({
+ ExportChannel channel, DateTime weekStart, String studentId, String studentName, String? matricule, String? groupName, String? programName, PdfLayout layout, ImageFormat imageFormat, bool includeCancelled, int alarmMinutes
+});
+
+
+
+
+}
+/// @nodoc
+class _$TimetableExportRequestCopyWithImpl<$Res>
+    implements $TimetableExportRequestCopyWith<$Res> {
+  _$TimetableExportRequestCopyWithImpl(this._self, this._then);
+
+  final TimetableExportRequest _self;
+  final $Res Function(TimetableExportRequest) _then;
+
+/// Create a copy of TimetableExportRequest
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? channel = null,Object? weekStart = null,Object? studentId = null,Object? studentName = null,Object? matricule = freezed,Object? groupName = freezed,Object? programName = freezed,Object? layout = null,Object? imageFormat = null,Object? includeCancelled = null,Object? alarmMinutes = null,}) {
+  return _then(TimetableExportRequest(
+channel: null == channel ? _self.channel : channel // ignore: cast_nullable_to_non_nullable
+as ExportChannel,weekStart: null == weekStart ? _self.weekStart : weekStart // ignore: cast_nullable_to_non_nullable
+as DateTime,studentId: null == studentId ? _self.studentId : studentId // ignore: cast_nullable_to_non_nullable
+as String,studentName: null == studentName ? _self.studentName : studentName // ignore: cast_nullable_to_non_nullable
+as String,matricule: freezed == matricule ? _self.matricule : matricule // ignore: cast_nullable_to_non_nullable
+as String?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
+as String?,programName: freezed == programName ? _self.programName : programName // ignore: cast_nullable_to_non_nullable
+as String?,layout: null == layout ? _self.layout : layout // ignore: cast_nullable_to_non_nullable
+as PdfLayout,imageFormat: null == imageFormat ? _self.imageFormat : imageFormat // ignore: cast_nullable_to_non_nullable
+as ImageFormat,includeCancelled: null == includeCancelled ? _self.includeCancelled : includeCancelled // ignore: cast_nullable_to_non_nullable
+as bool,alarmMinutes: null == alarmMinutes ? _self.alarmMinutes : alarmMinutes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [TimetableExportRequest].
+extension TimetableExportRequestPatterns on TimetableExportRequest {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _TimetableExportRequest value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _TimetableExportRequest() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _TimetableExportRequest value)  $default,){
+final _that = this;
+switch (_that) {
+case _TimetableExportRequest():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _TimetableExportRequest value)?  $default,){
+final _that = this;
+switch (_that) {
+case _TimetableExportRequest() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( ExportChannel channel,  DateTime weekStart,  String studentId,  String studentName,  String? matricule,  String? groupName,  String? programName,  PdfLayout layout,  ImageFormat imageFormat,  bool includeCancelled,  int alarmMinutes)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _TimetableExportRequest() when $default != null:
+return $default(_that.channel,_that.weekStart,_that.studentId,_that.studentName,_that.matricule,_that.groupName,_that.programName,_that.layout,_that.imageFormat,_that.includeCancelled,_that.alarmMinutes);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( ExportChannel channel,  DateTime weekStart,  String studentId,  String studentName,  String? matricule,  String? groupName,  String? programName,  PdfLayout layout,  ImageFormat imageFormat,  bool includeCancelled,  int alarmMinutes)  $default,) {final _that = this;
+switch (_that) {
+case _TimetableExportRequest():
+return $default(_that.channel,_that.weekStart,_that.studentId,_that.studentName,_that.matricule,_that.groupName,_that.programName,_that.layout,_that.imageFormat,_that.includeCancelled,_that.alarmMinutes);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( ExportChannel channel,  DateTime weekStart,  String studentId,  String studentName,  String? matricule,  String? groupName,  String? programName,  PdfLayout layout,  ImageFormat imageFormat,  bool includeCancelled,  int alarmMinutes)?  $default,) {final _that = this;
+switch (_that) {
+case _TimetableExportRequest() when $default != null:
+return $default(_that.channel,_that.weekStart,_that.studentId,_that.studentName,_that.matricule,_that.groupName,_that.programName,_that.layout,_that.imageFormat,_that.includeCancelled,_that.alarmMinutes);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _TimetableExportRequest implements TimetableExportRequest {
+  const _TimetableExportRequest({required this.channel, required this.weekStart, required this.studentId, required this.studentName, this.matricule, this.groupName, this.programName, this.layout = PdfLayout.landscape, this.imageFormat = ImageFormat.story, this.includeCancelled = true, this.alarmMinutes = 15});
+  factory _TimetableExportRequest.fromJson(Map<String, dynamic> json) => _$TimetableExportRequestFromJson(json);
+
+@override final  ExportChannel channel;
+@override final  DateTime weekStart;
+@override final  String studentId;
+@override final  String studentName;
+@override final  String? matricule;
+@override final  String? groupName;
+@override final  String? programName;
+@override@JsonKey() final  PdfLayout layout;
+@override@JsonKey() final  ImageFormat imageFormat;
+@override@JsonKey() final  bool includeCancelled;
+@override@JsonKey() final  int alarmMinutes;
+
+/// Create a copy of TimetableExportRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$TimetableExportRequestCopyWith<_TimetableExportRequest> get copyWith => __$TimetableExportRequestCopyWithImpl<_TimetableExportRequest>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$TimetableExportRequestToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TimetableExportRequest&&(identical(other.channel, channel) || other.channel == channel)&&(identical(other.weekStart, weekStart) || other.weekStart == weekStart)&&(identical(other.studentId, studentId) || other.studentId == studentId)&&(identical(other.studentName, studentName) || other.studentName == studentName)&&(identical(other.matricule, matricule) || other.matricule == matricule)&&(identical(other.groupName, groupName) || other.groupName == groupName)&&(identical(other.programName, programName) || other.programName == programName)&&(identical(other.layout, layout) || other.layout == layout)&&(identical(other.imageFormat, imageFormat) || other.imageFormat == imageFormat)&&(identical(other.includeCancelled, includeCancelled) || other.includeCancelled == includeCancelled)&&(identical(other.alarmMinutes, alarmMinutes) || other.alarmMinutes == alarmMinutes));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode {
+    return Object.hash(runtimeType,channel,weekStart,studentId,studentName,matricule,groupName,programName,layout,imageFormat,includeCancelled,alarmMinutes);
+}
+
+@override
+String toString() {
+    return 'TimetableExportRequest(channel: $channel, weekStart: $weekStart, studentId: $studentId, studentName: $studentName, matricule: $matricule, groupName: $groupName, programName: $programName, layout: $layout, imageFormat: $imageFormat, includeCancelled: $includeCancelled, alarmMinutes: $alarmMinutes)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$TimetableExportRequestCopyWith<$Res> implements $TimetableExportRequestCopyWith<$Res> {
+  factory _$TimetableExportRequestCopyWith(_TimetableExportRequest value, $Res Function(_TimetableExportRequest) _then) = __$TimetableExportRequestCopyWithImpl;
+@override @useResult
+$Res call({
+ ExportChannel channel, DateTime weekStart, String studentId, String studentName, String? matricule, String? groupName, String? programName, PdfLayout layout, ImageFormat imageFormat, bool includeCancelled, int alarmMinutes
+});
+
+
+
+
+}
+/// @nodoc
+class __$TimetableExportRequestCopyWithImpl<$Res>
+    implements _$TimetableExportRequestCopyWith<$Res> {
+  __$TimetableExportRequestCopyWithImpl(this._self, this._then);
+
+  final _TimetableExportRequest _self;
+  final $Res Function(_TimetableExportRequest) _then;
+
+/// Create a copy of TimetableExportRequest
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? channel = null,Object? weekStart = null,Object? studentId = null,Object? studentName = null,Object? matricule = freezed,Object? groupName = freezed,Object? programName = freezed,Object? layout = null,Object? imageFormat = null,Object? includeCancelled = null,Object? alarmMinutes = null,}) {
+  return _then(_TimetableExportRequest(
+channel: null == channel ? _self.channel : channel // ignore: cast_nullable_to_non_nullable
+as ExportChannel,weekStart: null == weekStart ? _self.weekStart : weekStart // ignore: cast_nullable_to_non_nullable
+as DateTime,studentId: null == studentId ? _self.studentId : studentId // ignore: cast_nullable_to_non_nullable
+as String,studentName: null == studentName ? _self.studentName : studentName // ignore: cast_nullable_to_non_nullable
+as String,matricule: freezed == matricule ? _self.matricule : matricule // ignore: cast_nullable_to_non_nullable
+as String?,groupName: freezed == groupName ? _self.groupName : groupName // ignore: cast_nullable_to_non_nullable
+as String?,programName: freezed == programName ? _self.programName : programName // ignore: cast_nullable_to_non_nullable
+as String?,layout: null == layout ? _self.layout : layout // ignore: cast_nullable_to_non_nullable
+as PdfLayout,imageFormat: null == imageFormat ? _self.imageFormat : imageFormat // ignore: cast_nullable_to_non_nullable
+as ImageFormat,includeCancelled: null == includeCancelled ? _self.includeCancelled : includeCancelled // ignore: cast_nullable_to_non_nullable
+as bool,alarmMinutes: null == alarmMinutes ? _self.alarmMinutes : alarmMinutes // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+
+/// @nodoc
 mixin _$Timetable {
 
  List<TimetableSlot> get creneaux;

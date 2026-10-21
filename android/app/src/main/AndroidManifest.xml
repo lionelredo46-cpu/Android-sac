@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <!-- Emploi du temps : lecture de tags (salle, émargement, carte étudiante) et Tap-to-Sync. -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
+    <uses-feature android:name="android.hardware.nfc.hce" android:required="false" />
 
     <application
         android:label="@string/app_name"
@@ -38,7 +42,26 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="uniparent.aframgabon.com" android:pathPrefix="/activer" />
             </intent-filter>
+            <!-- Tag NFC de salle approché application fermée : ouvre la vérification de salle. -->
+            <intent-filter>
+                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="https" android:host="uniparent.aframgabon.com" android:pathPrefix="/salle" />
+            </intent-filter>
         </activity>
+        <!-- Tap-to-Sync (émulation de tag NDEF) : activé par MainActivity le temps d'un partage. -->
+        <service
+            android:name=".TimetableHceService"
+            android:enabled="false"
+            android:exported="true"
+            android:permission="android.permission.BIND_NFC_SERVICE">
+            <intent-filter>
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.cardemulation.host_apdu_service"
+                android:resource="@xml/hce_apdu_service" />
+        </service>
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="uniparent_default" />

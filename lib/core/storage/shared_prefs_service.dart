@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/storage_keys.dart';
 
@@ -30,4 +32,12 @@ class SharedPrefsService {
   // Onboarding
   bool get hasCompletedOnboarding => _prefs.getBool(StorageKeys.hasCompletedOnboarding) ?? false;
   Future<bool> setCompletedOnboarding(bool completed) => _prefs.setBool(StorageKeys.hasCompletedOnboarding, completed);
+
+  // Cartes étudiantes NFC associées à un dossier (identifiant de carte → étudiant)
+  Map<String, String> get nfcCards {
+    final raw = _prefs.getString(StorageKeys.nfcCards);
+    return raw == null ? {} : Map<String, String>.from(jsonDecode(raw) as Map);
+  }
+
+  Future<bool> setNfcCard(String uid, String childId) => _prefs.setString(StorageKeys.nfcCards, jsonEncode({...nfcCards, uid: childId}));
 }

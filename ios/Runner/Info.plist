@@ -66,6 +66,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NFCReaderUsageDescription</key>
+	<string>Le NFC permet de vérifier votre salle, d'émarger, de lire une carte étudiante et de recevoir un emploi du temps partagé.</string>
+	<key>com.apple.developer.nfc.readersession.iso7816.select-identifiers</key>
+	<array>
+		<string>D2760000850101</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>La caméra permet de scanner le QR code de présence et de photographier un justificatif.</string>
 	<key>NSPhotoLibraryUsageDescription</key>

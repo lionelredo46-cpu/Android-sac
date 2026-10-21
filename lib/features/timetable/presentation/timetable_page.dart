@@ -1,139 +1,206 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
-import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/route_paths.dart';
-import '../../../core/utils/formatters.dart';
+import '../../../core/theme/obsidian_theme.dart';
 import '../../../core/widgets/ui.dart';
+import '../../children/application/children_providers.dart';
 import '../../children/domain/child.dart';
 import '../../children/presentation/child_scope.dart';
 import '../data/timetable_repository.dart';
+import '../domain/nfc_payload.dart';
 import '../domain/timetable_models.dart';
+import 'nfc_controller.dart';
+import 'slot_detail_page.dart';
+import 'timetable_controller.dart';
+import 'widgets/export_bottom_sheet.dart';
+import 'widgets/nfc_radar_sheet.dart';
+import 'widgets/timetable_desktop_view.dart';
+import 'widgets/timetable_mobile_view.dart';
 
-DateTime mondayOf(DateTime d) => DateTime(d.year, d.month, d.day).subtract(Duration(days: d.weekday - 1));
-
+/// Emploi du temps « Obsidian » : timeline mobile (< 600 px), grille hebdomadaire au-delà.
+///
+/// Liens profonds : `/timetable?week=2026-10-19&sheet=export|nfc&nfc=room|sync|attendance|card`,
+/// et `/salle/<code>` (tag NFC de salle lu application fermée).
 class TimetablePage extends ConsumerStatefulWidget {
-  const TimetablePage({super.key});
+  final String? initialWeek;
+  final String? sheet;
+  final String? nfcMode;
+  final String? roomCode;
+
+  const TimetablePage({super.key, this.initialWeek, this.sheet, this.nfcMode, this.roomCode});
+
+  static const breakpoint = 600.0;
 
   @override
   ConsumerState<TimetablePage> createState() => _TimetablePageState();
 }
 
 class _TimetablePageState extends ConsumerState<TimetablePage> {
-  DateTime _monday = mondayOf(DateTime.now());
+  bool _deepLinkHandled = false;
 
-  Future<void> _export(Child child) async {
+  TimetableController get _controller => ref.read(timetableControllerProvider.notifier);
+
+  @override
+  void initState() {
+    super.initState();
+    final week = DateTime.tryParse(widget.initialWeek ?? '');
+    if (week != null) WidgetsBinding.instance.addPostFrameCallback((_) => _controller.show(week));
+  }
+
+  TimetableExportRequest _request(Child child, DateTime weekStart) => TimetableExportRequest(
+    channel: ExportChannel.pdf,
+    weekStart: weekStart,
+    studentId: child.id,
+    studentName: '${child.prenom} ${child.nom}',
+    matricule: child.matricule,
+    groupName: child.group.nom,
+    programName: child.group.program.nom,
+  );
+
+  /// Cours du jour, même si une autre semaine est affichée. Lecture directe (cache hors ligne compris) :
+  /// le provider autoDispose de la semaine courante ne serait écouté par personne et serait libéré en cours de chargement.
+  Future<List<TimetableSlot>> _todaySlots(Child child) async {
+    final now = DateTime.now();
+    final timetable = await ref.read(timetableRepositoryProvider).week(child.id, mondayOf(now));
+    return timetable.data.creneaux.where((s) => s.day == DateTime(now.year, now.month, now.day)).toList();
+  }
+
+  Future<void> _openNfc(Child child, List<TimetableSlot> weekSlots, {NfcMode mode = NfcMode.room}) async {
+    final state = ref.read(timetableControllerProvider);
+    List<TimetableSlot> today = const [];
     try {
-      final ics = await ref.read(timetableRepositoryProvider).ics(child.id);
-      final file = File('${(await getTemporaryDirectory()).path}/afram-emploi-du-temps.ics');
-      await file.writeAsString(ics);
-      await Share.shareXFiles([XFile(file.path, mimeType: 'text/calendar')], subject: 'AFRAM — Emploi du temps');
-    } catch (e) {
-      if (mounted) context.showError(e);
+      today = await _todaySlots(child);
+    } catch (_) {
+      // Hors ligne sans cache : la vérification de salle indiquera « aucun cours ».
     }
+    if (!mounted) return;
+    await showNfcRadar(
+      context,
+      NfcRadarArgs(
+        child: child,
+        children: ref.read(childrenProvider).value?.data ?? [child],
+        todaySlots: today,
+        weekSlots: weekSlots,
+        weekStart: state.weekStart,
+        openChildAgenda: (c) async {
+          await ref.read(activeChildIdProvider.notifier).select(c.id);
+          _controller.goToToday();
+        },
+        openShared: (share) => context.push(RoutePaths.timetableShared, extra: share),
+      ),
+      initialMode: mode,
+    );
+  }
+
+  /// Tag de salle lu hors application : résultat immédiat, sans nouveau scan.
+  Future<void> _openRoomCheck(Child child, String roomCode) async {
+    final today = await _todaySlots(child).catchError((Object _) => <TimetableSlot>[]);
+    if (!mounted) return;
+    final check = checkRoom(roomCode, today, DateTime.now());
+    HapticFeedback.mediumImpact();
+    final l = context.l10n;
+    context.showSnack(
+      check.isMine
+          ? '${l.ttRoomYes} — ${l.room(roomCode)}'
+          : check.reference == null
+          ? '${l.ttRoomNo} — ${l.ttRoomNoCourse}'
+          : '${l.ttRoomNo} — ${l.ttRoomExpected(check.reference!.matiere, check.reference!.salle, check.reference!.campus)}',
+    );
+  }
+
+  /// Ouvre une seule fois la cible d'un lien profond. La vérification de salle charge elle-même les cours
+  /// du jour ; les feuilles attendent la semaine (ou son échec, hors ligne sans cache).
+  void _handleDeepLink(Child child, AsyncValue<Object?> week, List<TimetableSlot>? slots, DateTime weekStart) {
+    final room = widget.roomCode;
+    if (_deepLinkHandled || (room == null && widget.sheet == null)) return;
+    if (room == null && slots == null && !week.hasError) return;
+    _deepLinkHandled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (room != null) {
+        _openRoomCheck(child, room);
+      } else if (widget.sheet == 'export') {
+        showExportHub(context, request: _request(child, weekStart), slots: slots ?? const []);
+      } else if (widget.sheet == 'nfc') {
+        _openNfc(child, slots ?? const [], mode: NfcMode.values.asNameMap()[widget.nfcMode] ?? NfcMode.room);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     return ChildScope(
-      builder: (context, child) => Scaffold(
-        appBar: AppBar(
-          title: Text(l.timetableTitle),
-          actions: [
-            IconButton(tooltip: l.calendarTitle, icon: const Icon(Icons.event_rounded), onPressed: () => context.push(RoutePaths.calendar)),
-            IconButton(tooltip: l.exportCalendar, icon: const Icon(Icons.ios_share_rounded), onPressed: () => _export(child)),
-          ],
-        ),
-        body: Column(children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(children: [
-              IconButton(tooltip: l.back, icon: const Icon(Icons.chevron_left_rounded), onPressed: () => setState(() => _monday = _monday.subtract(const Duration(days: 7)))),
-              Expanded(
-                child: TextButton(
-                  onPressed: () => setState(() => _monday = mondayOf(DateTime.now())),
-                  child: Text('${Fmt.dayMonth(_monday)} – ${Fmt.dayMonth(_monday.add(const Duration(days: 5)))}', style: AppTextStyles.h3),
-                ),
+      builder: (context, child) {
+        final state = ref.watch(timetableControllerProvider);
+        final async = ref.watch(timetableProvider((childId: child.id, monday: state.weekStart)));
+        final cached = async.value;
+        final slots = cached?.data.creneaux;
+        _handleDeepLink(child, async, slots, state.weekStart);
+
+        final data = TimetableViewData(
+          state: state,
+          now: ref.watch(clockProvider),
+          slots: slots,
+          error: async.error,
+          staleSince: cached != null && cached.fromCache ? cached.updatedAt : null,
+          attendance: ref.watch(attendanceBySlotProvider(child.id)),
+        );
+        final request = _request(child, state.weekStart);
+        final title = l.timetableTitle;
+        final subtitle = '${child.prenom} ${child.nom} · ${child.group.nom}';
+
+        return Theme(
+          data: ObsidianTheme.of(Theme.of(context)),
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.light,
+            child: Scaffold(
+              backgroundColor: ObsidianColors.abyss,
+              body: LayoutBuilder(
+                builder: (context, c) {
+                  final wide = c.maxWidth >= TimetablePage.breakpoint;
+                  final actions = TimetableViewActions(
+                    openSlot: (slot) async {
+                      _controller.selectSlot(slot.id);
+                      if (wide) return;
+                      final action = await context.push<SlotDetailAction>(RoutePaths.timetableSlot(slot.id), extra: slot);
+                      if (action == SlotDetailAction.checkRoom && context.mounted) await _openNfc(child, slots ?? const []);
+                    },
+                    shiftWeek: _controller.shiftWeek,
+                    selectDay: (d) {
+                      HapticFeedback.selectionClick();
+                      _controller.selectDay(d);
+                    },
+                    goToToday: _controller.goToToday,
+                    toggleMode: _controller.toggleMobileMode,
+                    openNfc: () => _openNfc(child, slots ?? const []),
+                    openExport: () => showExportHub(context, request: request, slots: slots ?? const []),
+                    retry: () => ref.invalidate(timetableProvider((childId: child.id, monday: state.weekStart))),
+                    back: context.canPop() ? () => context.pop() : null,
+                  );
+                  if (!wide) return TimetableMobileView(title: title, subtitle: subtitle, data: data, actions: actions);
+                  return TimetableDesktopView(
+                    title: title,
+                    subtitle: subtitle,
+                    data: data,
+                    actions: actions,
+                    onSelectNone: () => _controller.selectSlot(null),
+                    togglePanel: _controller.togglePanel,
+                    exportPreview: slots == null ? const SizedBox.shrink() : LivePdfPreview(request: request, slots: slots),
+                    addToCalendar: (slot) => shareIcs(context, ref, request.copyWith(channel: ExportChannel.ics), [slot]).catchError((Object e) {
+                      if (context.mounted) context.showError(e);
+                    }),
+                    checkRoom: (_) => _openNfc(child, slots ?? const []),
+                  );
+                },
               ),
-              IconButton(tooltip: l.next, icon: const Icon(Icons.chevron_right_rounded), onPressed: () => setState(() => _monday = _monday.add(const Duration(days: 7)))),
-            ]),
-          ),
-          Expanded(
-            child: CachedAsyncView<Timetable>(
-              value: ref.watch(timetableProvider((childId: child.id, monday: _monday))),
-              onRetry: () => ref.invalidate(timetableProvider((childId: child.id, monday: _monday))),
-              isEmpty: (t) => t.creneaux.isEmpty,
-              emptyTitle: l.noClassToday,
-              emptyIcon: Icons.event_busy_rounded,
-              builder: (context, t) {
-                final days = <DateTime, List<TimetableSlot>>{};
-                for (final s in t.creneaux) {
-                  final d = s.debut.toLocal();
-                  days.putIfAbsent(DateTime(d.year, d.month, d.day), () => []).add(s);
-                }
-                final today = DateTime.now();
-                return ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: days.entries.map((e) {
-                    final isToday = e.key.year == today.year && e.key.month == today.month && e.key.day == today.day;
-                    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8, bottom: 6),
-                        child: Text('${Fmt.weekday(e.key)} ${Fmt.dayMonth(e.key)}',
-                            style: AppTextStyles.h3.copyWith(color: isToday ? AppColors.aframGold : null)),
-                      ),
-                      ...e.value.map((s) => _SlotCard(s)),
-                    ]);
-                  }).toList(),
-                );
-              },
             ),
           ),
-        ]),
-      ),
-    );
-  }
-}
-
-class _SlotCard extends StatelessWidget {
-  final TimetableSlot s;
-  const _SlotCard(this.s);
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final color = s.cancelled ? AppColors.error : s.postponed ? AppColors.warning : AppColors.aframPrimary;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: IntrinsicHeight(
-        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Container(width: 5, decoration: BoxDecoration(color: color, borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)))),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Text('${Fmt.time(s.debut)} – ${Fmt.time(s.fin)}', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.w700, color: color)),
-                  const Spacer(),
-                  if (s.cancelled) StatusChip.status('ANNULE', l.cancelledClass),
-                  if (s.postponed) StatusChip.status('REPORTE', l.postponedClass),
-                ]),
-                const SizedBox(height: 4),
-                Text(s.matiere, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700, decoration: s.cancelled ? TextDecoration.lineThrough : null)),
-                Text('${s.enseignant} · ${l.room(s.salle)} · ${s.campus}', style: AppTextStyles.bodySmall),
-                if (s.motif != null) Text(s.motif!, style: AppTextStyles.bodySmall.copyWith(color: color, fontStyle: FontStyle.italic)),
-              ]),
-            ),
-          ),
-        ]),
-      ),
+        );
+      },
     );
   }
 }

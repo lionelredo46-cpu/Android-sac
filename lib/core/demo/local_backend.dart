@@ -500,14 +500,20 @@ class LocalBackend {
       return !d.isBefore(from) && d.isBefore(to);
     }
 
-    var slots = all.where(inRange).toList();
-    if (slots.isEmpty && all.isNotEmpty) {
-      final ref = DateTime.parse(_meta['refMonday'] as String);
-      final refMonday = DateTime(ref.year, ref.month, ref.day);
-      final f = from.toLocal();
-      final weeks = (DateTime(f.year, f.month, f.day).difference(refMonday).inDays / 7).floor();
+    final ref = DateTime.parse(_meta['refMonday'] as String);
+    final refMonday = DateTime(ref.year, ref.month, ref.day);
+    final slots = <Map<String, dynamic>>[];
+    // Semaine par semaine : une semaine absente de l'export reprend le modèle de la semaine de référence
+    // (une période de plusieurs semaines, comme l'export agenda, reste ainsi entièrement remplie).
+    for (var monday = _monday(from.toLocal()); monday.isBefore(to); monday = DateTime(monday.year, monday.month, monday.day + 7)) {
+      final real = all.where((s) => _inWeek(s, monday)).toList();
+      if (real.isNotEmpty || all.isEmpty) {
+        slots.addAll(real);
+        continue;
+      }
+      final weeks = (monday.difference(refMonday).inHours / (24 * 7)).round();
       final offset = Duration(days: weeks * 7);
-      slots = [
+      slots.addAll([
         for (final s in all)
           if (_inWeek(s, refMonday) && s['statut'] != 'ANNULE')
             {
@@ -518,10 +524,10 @@ class LocalBackend {
               'statut': 'PLANIFIE',
               'motif': null,
             },
-      ].where(inRange).toList();
+      ]);
     }
     final now = DateTime.now();
-    return [for (final s in slots) {...s, 'statut': _slotStatus(s, now)}];
+    return [for (final s in slots) if (inRange(s)) {...s, 'statut': _slotStatus(s, now)}];
   }
 
   static bool _inWeek(Map<String, dynamic> s, DateTime monday) {

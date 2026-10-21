@@ -27,7 +27,11 @@ class TimetableRepository {
         (json) => (json! as List).map((e) => CalendarEvent.fromJson(e as Map<String, dynamic>)).toList(),
       );
 
-  Future<String> ics(String childId) => _api.text(ApiEndpoints.timetableIcs(childId));
+  /// Créneaux d'une période (2 mois au plus côté API) : export agenda sur plusieurs semaines.
+  Future<List<TimetableSlot>> between(String childId, DateTime from, DateTime to) async => Timetable.fromJson(await _api.get<Map<String, dynamic>>(
+        ApiEndpoints.timetable(childId),
+        query: {'from': from.toUtc().toIso8601String(), 'to': to.toUtc().toIso8601String()},
+      )).creneaux;
 }
 
 final timetableRepositoryProvider = Provider<TimetableRepository>((ref) => TimetableRepository(ref.watch(apiClientProvider), ref.watch(cacheStoreProvider)));

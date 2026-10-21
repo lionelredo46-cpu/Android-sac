@@ -59,7 +59,25 @@ cd backend && npm test               # unitaires (calcul des moyennes…)
 cd backend && npm run test:e2e       # 87 vérifications de bout en bout (API démarrée + seed)
 cd admin && npm run typecheck
 flutter analyze && flutter test      # unitaires + widgets
+flutter widget-preview start         # aperçus des composants (lib/**/timetable_previews.dart)
+# Parcours complet sur appareil (démo autonome, NFC simulé si l'appareil n'a pas de puce) :
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/timetable_flow_test.dart --profile --flavor demo
 ```
+
+## Emploi du temps et NFC
+
+Module `lib/features/timetable` : timeline mobile (< 600 px), grille hebdomadaire et panneau latéral au-delà, export PDF (A4 paysage/portrait, QR de vérification), iCalendar (RFC 5545, rappel 15 min) et image (story 9:16 / carte 1:1).
+
+Liens profonds : `/timetable?week=2026-10-19&sheet=export|nfc&nfc=room|sync|attendance|card`.
+
+| Usage NFC | Support | Contenu attendu |
+|---|---|---|
+| Ma salle | Tag NDEF collé à l'entrée | URI `https://uniparent.aframgabon.com/salle/<code>` (ouvre aussi l'application fermée, Android) ou texte `AFRAM:SALLE:<code>` |
+| Émargement | Borne ou badge NDEF | URI `…/presence/<code>` ou texte `AFRAM:PRESENCE:<code>` — `<code>` = code de séance du QR de présence (`POST /attendance/scan`) |
+| Carte étudiant | MIFARE / DESFire / NFC | Seul l'identifiant matériel est lu ; l'association carte → étudiant est enregistrée sur le téléphone au premier scan |
+| Tap-to-Sync | Téléphone à téléphone | L'émetteur émule un tag NDEF type 4 (HCE, **Android uniquement**) ; le récepteur peut être un Android ou un iPhone |
+
+Limites : le pair-à-pair NFC « Android Beam » n'existe plus (Android 10+) et iOS ne sait pas émuler un tag ; sur iPhone, la lecture NFC exige la capacité *NFC Tag Reading* (compte Apple Developer payant) — déclarée dans `ios/Runner/Runner.entitlements`. L'API ne propose pas encore le planning complet d'une salle : la vérification affiche les cours de l'étudiant dans cette salle. Le lien de vérification du QR des PDF (`/verifier/edt?e=…&s=…&h=…`) attend sa page côté serveur.
 
 ## Architecture et règles de sécurité
 

@@ -1723,6 +1723,654 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Contact d\'urgence'**
   String get emergencyContact;
+
+  /// No description provided for @ttToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get ttToday;
+
+  /// No description provided for @ttLiveNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'EN DIRECT'**
+  String get ttLiveNow;
+
+  /// No description provided for @ttNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maintenant'**
+  String get ttNow;
+
+  /// No description provided for @ttViewDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour'**
+  String get ttViewDay;
+
+  /// No description provided for @ttViewWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine'**
+  String get ttViewWeek;
+
+  /// No description provided for @ttNfc.
+  ///
+  /// In fr, this message translates to:
+  /// **'NFC'**
+  String get ttNfc;
+
+  /// No description provided for @ttExport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter'**
+  String get ttExport;
+
+  /// No description provided for @ttPrevWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine précédente'**
+  String get ttPrevWeek;
+
+  /// No description provided for @ttNextWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine suivante'**
+  String get ttNextWeek;
+
+  /// No description provided for @ttNoClassDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun cours ce jour'**
+  String get ttNoClassDay;
+
+  /// No description provided for @ttNoClassDayBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profitez-en pour réviser ou avancer vos projets.'**
+  String get ttNoClassDayBody;
+
+  /// No description provided for @ttNoClassWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun cours cette semaine'**
+  String get ttNoClassWeek;
+
+  /// No description provided for @ttClassesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun cours} =1{1 cours} other{{count} cours}}'**
+  String ttClassesCount(int count);
+
+  /// No description provided for @ttPresent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Présent'**
+  String get ttPresent;
+
+  /// No description provided for @ttAbsent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Absent'**
+  String get ttAbsent;
+
+  /// No description provided for @ttLate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retard'**
+  String get ttLate;
+
+  /// No description provided for @ttExcused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Excusé'**
+  String get ttExcused;
+
+  /// No description provided for @ttTeacher.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enseignant'**
+  String get ttTeacher;
+
+  /// No description provided for @ttRoomLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salle'**
+  String get ttRoomLabel;
+
+  /// No description provided for @ttCampus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Campus'**
+  String get ttCampus;
+
+  /// No description provided for @ttDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée'**
+  String get ttDuration;
+
+  /// No description provided for @ttMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min'**
+  String ttMinutes(int minutes);
+
+  /// No description provided for @ttAttendanceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appel'**
+  String get ttAttendanceLabel;
+
+  /// No description provided for @ttAttendancePending.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'appel n\'a pas encore eu lieu'**
+  String get ttAttendancePending;
+
+  /// No description provided for @ttSlotDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail du cours'**
+  String get ttSlotDetail;
+
+  /// No description provided for @ttSelectSlotHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez un cours pour afficher son détail.'**
+  String get ttSelectSlotHint;
+
+  /// No description provided for @ttExportPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu de l\'export'**
+  String get ttExportPreview;
+
+  /// No description provided for @ttAddToCalendar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à mon agenda'**
+  String get ttAddToCalendar;
+
+  /// No description provided for @ttCheckRoom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier ma salle'**
+  String get ttCheckRoom;
+
+  /// No description provided for @ttShowPanel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher le panneau'**
+  String get ttShowPanel;
+
+  /// No description provided for @ttHidePanel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer le panneau'**
+  String get ttHidePanel;
+
+  /// No description provided for @ttExportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter la semaine'**
+  String get ttExportTitle;
+
+  /// No description provided for @ttExportSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine du {range}'**
+  String ttExportSubtitle(String range);
+
+  /// No description provided for @ttPdfTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'PDF éditorial'**
+  String get ttPdfTitle;
+
+  /// No description provided for @ttPdfBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'A4 vectoriel, code couleur par matière, QR code d\'authenticité.'**
+  String get ttPdfBody;
+
+  /// No description provided for @ttLandscape.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paysage'**
+  String get ttLandscape;
+
+  /// No description provided for @ttPortrait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Portrait'**
+  String get ttPortrait;
+
+  /// No description provided for @ttPreviewPdf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu, impression et partage'**
+  String get ttPreviewPdf;
+
+  /// No description provided for @ttIcsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Agenda (.ics)'**
+  String get ttIcsTitle;
+
+  /// No description provided for @ttIcsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Google Agenda, Apple Calendrier ou Outlook, avec rappel {minutes} min avant chaque cours.'**
+  String ttIcsBody(int minutes);
+
+  /// No description provided for @ttIcsAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir dans l\'agenda'**
+  String get ttIcsAction;
+
+  /// No description provided for @ttImageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Image à partager'**
+  String get ttImageTitle;
+
+  /// No description provided for @ttImageBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format story ou carte de poche, pour WhatsApp, SMS ou messagerie.'**
+  String get ttImageBody;
+
+  /// No description provided for @ttStory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Story 9:16'**
+  String get ttStory;
+
+  /// No description provided for @ttSquare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte 1:1'**
+  String get ttSquare;
+
+  /// No description provided for @ttShareImage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager l\'image'**
+  String get ttShareImage;
+
+  /// No description provided for @ttCalendarName.
+  ///
+  /// In fr, this message translates to:
+  /// **'AFRAM — {name}'**
+  String ttCalendarName(String name);
+
+  /// No description provided for @ttPdfDocTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Emploi du temps'**
+  String get ttPdfDocTitle;
+
+  /// No description provided for @ttPdfStudent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étudiant :'**
+  String get ttPdfStudent;
+
+  /// No description provided for @ttPdfMatricule.
+  ///
+  /// In fr, this message translates to:
+  /// **'Matricule'**
+  String get ttPdfMatricule;
+
+  /// No description provided for @ttPdfGroup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Groupe'**
+  String get ttPdfGroup;
+
+  /// No description provided for @ttPdfGenerated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Généré le'**
+  String get ttPdfGenerated;
+
+  /// No description provided for @ttPdfAuthentic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document authentique'**
+  String get ttPdfAuthentic;
+
+  /// No description provided for @ttPdfVerifyHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scannez le QR code pour vérifier ce planning.'**
+  String get ttPdfVerifyHint;
+
+  /// No description provided for @ttPdfTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Horaire'**
+  String get ttPdfTime;
+
+  /// No description provided for @ttPdfCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cours'**
+  String get ttPdfCourse;
+
+  /// No description provided for @ttPdfStatus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Statut'**
+  String get ttPdfStatus;
+
+  /// No description provided for @ttPdfPage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page'**
+  String get ttPdfPage;
+
+  /// No description provided for @ttReminder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel'**
+  String get ttReminder;
+
+  /// No description provided for @ttStoryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma semaine'**
+  String get ttStoryTitle;
+
+  /// No description provided for @ttStoryMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'+{count} autres cours'**
+  String ttStoryMore(int count);
+
+  /// No description provided for @ttStoryFooter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Généré avec UniParent AFRAM'**
+  String get ttStoryFooter;
+
+  /// No description provided for @ttNfcTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hub NFC'**
+  String get ttNfcTitle;
+
+  /// No description provided for @ttNfcSync.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tap-to-Sync'**
+  String get ttNfcSync;
+
+  /// No description provided for @ttNfcRoom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma salle'**
+  String get ttNfcRoom;
+
+  /// No description provided for @ttNfcAttendance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Émargement'**
+  String get ttNfcAttendance;
+
+  /// No description provided for @ttNfcCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte étudiant'**
+  String get ttNfcCard;
+
+  /// No description provided for @ttNfcSyncHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approchez deux téléphones dos à dos pour échanger l\'emploi du temps de la semaine, sans réseau.'**
+  String get ttNfcSyncHint;
+
+  /// No description provided for @ttNfcRoomHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approchez le tag NFC placé à l\'entrée de la salle ou de l\'amphi.'**
+  String get ttNfcRoomHint;
+
+  /// No description provided for @ttNfcAttendanceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approchez votre téléphone de la borne ou du badge d\'émargement.'**
+  String get ttNfcAttendanceHint;
+
+  /// No description provided for @ttNfcCardHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approchez une carte étudiante (MIFARE, DESFire ou NFC).'**
+  String get ttNfcCardHint;
+
+  /// No description provided for @ttNfcScan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer le scan'**
+  String get ttNfcScan;
+
+  /// No description provided for @ttNfcScanning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche en cours…'**
+  String get ttNfcScanning;
+
+  /// No description provided for @ttNfcReceive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir'**
+  String get ttNfcReceive;
+
+  /// No description provided for @ttNfcShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager ma semaine'**
+  String get ttNfcShare;
+
+  /// No description provided for @ttNfcSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prêt : approchez l\'autre téléphone, écran allumé et déverrouillé.'**
+  String get ttNfcSharing;
+
+  /// No description provided for @ttNfcStopSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter le partage'**
+  String get ttNfcStopSharing;
+
+  /// No description provided for @ttNfcShareUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'envoi par NFC n\'est pas disponible sur cet appareil : seule la réception fonctionne.'**
+  String get ttNfcShareUnavailable;
+
+  /// No description provided for @ttNfcSimulate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler un tag (démo)'**
+  String get ttNfcSimulate;
+
+  /// No description provided for @ttNfcUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet appareil n\'a pas de puce NFC.'**
+  String get ttNfcUnavailable;
+
+  /// No description provided for @ttNfcDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le NFC est désactivé : activez-le dans les réglages.'**
+  String get ttNfcDisabled;
+
+  /// No description provided for @ttNfcIosPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Approchez votre iPhone du tag NFC'**
+  String get ttNfcIosPrompt;
+
+  /// No description provided for @ttNfcIosSuccess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture réussie'**
+  String get ttNfcIosSuccess;
+
+  /// No description provided for @ttNfcTimeout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun tag détecté. Réessayez.'**
+  String get ttNfcTimeout;
+
+  /// No description provided for @ttNfcCancelled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scan annulé.'**
+  String get ttNfcCancelled;
+
+  /// No description provided for @ttNfcUnreadable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tag illisible ou format inconnu.'**
+  String get ttNfcUnreadable;
+
+  /// No description provided for @ttNfcRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau scan'**
+  String get ttNfcRetry;
+
+  /// No description provided for @ttRoomYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, c\'est votre salle'**
+  String get ttRoomYes;
+
+  /// No description provided for @ttRoomNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce n\'est pas votre salle'**
+  String get ttRoomNo;
+
+  /// No description provided for @ttRoomExpected.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {course} » a lieu en {room} ({campus}).'**
+  String ttRoomExpected(String course, String room, String campus);
+
+  /// No description provided for @ttRoomNoCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus aucun cours prévu pour vous aujourd\'hui.'**
+  String get ttRoomNoCourse;
+
+  /// No description provided for @ttRoomToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos cours en {room} aujourd\'hui'**
+  String ttRoomToday(String room);
+
+  /// No description provided for @ttRoomNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun de vos cours n\'a lieu dans cette salle aujourd\'hui.'**
+  String get ttRoomNone;
+
+  /// No description provided for @ttAttendanceOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Émargement validé'**
+  String get ttAttendanceOk;
+
+  /// No description provided for @ttAttendanceLate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retard de {minutes} min enregistré'**
+  String ttAttendanceLate(int minutes);
+
+  /// No description provided for @ttCardLinked.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte de {name}'**
+  String ttCardLinked(String name);
+
+  /// No description provided for @ttCardOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir son agenda'**
+  String get ttCardOpen;
+
+  /// No description provided for @ttCardUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Carte non associée'**
+  String get ttCardUnknown;
+
+  /// No description provided for @ttCardLinkHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Associez cette carte à un dossier : elle ouvrira ensuite son agenda en un geste.'**
+  String get ttCardLinkHint;
+
+  /// No description provided for @ttCardLinkTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Associer à {name}'**
+  String ttCardLinkTo(String name);
+
+  /// No description provided for @ttCardUid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Identifiant {uid} · {technology}'**
+  String ttCardUid(String uid, String technology);
+
+  /// No description provided for @ttShareReceived.
+  ///
+  /// In fr, this message translates to:
+  /// **'Emploi du temps de {name} reçu'**
+  String ttShareReceived(String name);
+
+  /// No description provided for @ttShareView.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher'**
+  String get ttShareView;
+
+  /// No description provided for @ttSharedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Emploi du temps partagé'**
+  String get ttSharedTitle;
+
+  /// No description provided for @ttSharedBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagé par {name} le {date}'**
+  String ttSharedBy(String name, String date);
+
+  /// No description provided for @ttNfcTooLarge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Semaine trop chargée pour un partage NFC.'**
+  String get ttNfcTooLarge;
+
+  /// No description provided for @ttIcsScopeWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette semaine'**
+  String get ttIcsScopeWeek;
+
+  /// No description provided for @ttIcsScopeTerm.
+  ///
+  /// In fr, this message translates to:
+  /// **'8 semaines'**
+  String get ttIcsScopeTerm;
 }
 
 class _AppLocalizationsDelegate
