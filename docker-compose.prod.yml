@@ -1,0 +1,42 @@
+# Déploiement de production (VPS) : API + back-office + PostgreSQL + Redis + stockage S3.
+# Secrets dans un fichier .env.prod (non versionné). Un reverse proxy TLS (Caddy/Traefik/Nginx)
+# expose api.uniparent.aframgabon.com → api:3000 et admin.uniparent.aframgabon.com → admin:3001.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    env_file: .env.prod
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes: [redis_data:/data]
+  s3:
+    image: rustfs/rustfs:latest
+    restart: always
+    env_file: .env.prod
+    volumes: [s3_data:/data]
+  api:
+    build: ./backend
+    restart: always
+    env_file: .env.prod
+    environment:
+      NODE_ENV: production
+    depends_on:
+      postgres: { condition: service_healthy }
+    ports: ["127.0.0.1:3000:3000"]
+  admin:
+    build: ./admin
+    restart: always
+    environment:
+      API_URL: http://api:3000
+    depends_on: [api]
+    ports: ["127.0.0.1:3001:3001"]
+volumes:
+  postgres_data:
+  redis_data:
+  s3_data:

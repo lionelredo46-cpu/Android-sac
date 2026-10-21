@@ -1,0 +1,10 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "claudeCode.disableLoginPrompt": false,
+    "claudeCode.enableNewConversationShortcut": true,
+    "claudeCodeChat.permissions.yoloMode": true,
+    "claudeCodeChat.router.enabled": true,
+    "claudeCodeChat.wsl.enabled": true,
+    "kilo-code.new.claudeCodeCompat": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
+}

@@ -1,0 +1,37 @@
+{
+  "institution": {
+    "nom": "Académie Franco-Américaine de Management",
+    "sigle": "AFRAM",
+    "statut": "Établissement privé d'enseignement supérieur",
+    "ville": "Libreville",
+    "pays": "Gabon",
+    "site_officiel": "https://aframgabon.com/",
+    "email": "aframilesmail@aframgabon.com",
+    "telephone": "+241 066 70 11 84",
+    "whatsapp": "+241 074 00 00 43",
+    "horaires": {
+      "lundi_vendredi": "08:00-20:00",
+      "samedi": "08:00-14:00"
+    },
+    "adresse_publique": "Rue André MINTSA – Batterie IV, près de l'École Conventionnée Gros Bouquet 1, Libreville, Gabon",
+    "validation_requise": ["décrets", "adresses des campus", "frais", "calendrier", "règlement intérieur"]
+  },
+  "campus": [
+    {"nom": "Batterie IV", "ville": "Libreville", "salles_annoncees": ">15", "climatisees": true, "source": "site officiel", "validation_requise": true},
+    {"nom": "Louis", "ville": "Libreville", "salles_annoncees": ">15", "climatisees": true, "source": "page À propos officielle", "validation_requise": true}
+  ],
+  "equipements_annonces": ["bibliothèque numérique", "salle informatique", "vidéoprojecteurs", "tableaux numériques tactiles"],
+  "licences": [
+    {"nom": "Droit", "admission": "Baccalauréat ou équivalent", "specialites": ["Conseil juridique", "Fiscalité", "Contentieux et recouvrement"]},
+    {"nom": "QHSE Management", "admission": "Baccalauréat ou équivalent; profils scientifiques, mathématiques ou technologiques appréciés", "specialites": ["QHSE", "Écosystèmes terrestres", "Écosystèmes aquatiques", "Cartographie"]},
+    {"nom": "Management et Gestion des Organisations", "admission": "Baccalauréat économique, scientifique ou technologique, ou équivalent", "specialites": ["Comptabilité-Finance-Audit", "Achat & Supply Chain", "Entrepreneuriat & Gestion de Projets", "GRH", "Marketing & Communication"]},
+    {"nom": "Systèmes Informatiques et Logiciels", "admission": "Baccalauréat scientifique, mathématique ou technologique, ou équivalent", "specialites": ["Administration réseau", "Développement logiciel"]}
+  ],
+  "masters": [
+    {"domaine": "Droit", "specialites": ["Droit des affaires", "Droit du contentieux et recouvrement", "Droit, gestion et protection de l’environnement", "Droit, gestion des collectivités locales", "Droit fiscal et douanier"]},
+    {"domaine": "Management", "specialites": ["Entrepreneuriat & Management de projets", "Contrôle de Gestion", "Comptabilité Audit", "Banque Finance et Conformité", "Ingénierie Financière et Analyse des Risques", "Ingénierie de l’Assurance", "Marketing Digital", "Communication Digitale", "Achat & Supply Chain", "Gestion des Ressources Humaines et des Organisations"]},
+    {"domaine": "QHSE", "specialites": ["Hygiène Sécurité Environnement", "Qualité Sécurité Environnement"]},
+    {"domaine": "Informatique", "specialites": ["Technologies et Systèmes d’Information"]}
+  ],
+  "frais_externes_a_verifier": {"inscription_fcfa": 95000, "scolarite_annuelle_fcfa": 990000, "source": "Ogooué Éducation; ne pas publier comme tarif officiel sans validation"}
+}

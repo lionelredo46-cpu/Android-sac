@@ -1,0 +1,977 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ==========================================
+// ENUMS
+// ==========================================
+
+enum UserRole {
+  SUPER_ADMIN
+  DIRECTION
+  SCOLARITE
+  COMPTABLE
+  ENSEIGNANT
+  PARENT
+  ETUDIANT
+  SUPPORT
+}
+
+enum UserStatus {
+  PENDING_ACTIVATION
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum StudentStatus {
+  INSCRIT
+  EN_ATTENTE_DOCUMENTS
+  SUSPENDU
+  DIPLOME
+  ABANDON
+}
+
+enum ParentRelationType {
+  PERE
+  MERE
+  TUTEUR_LEGAL
+  SPONSOR
+}
+
+enum SlotStatus {
+  PLANIFIE
+  EN_COURS
+  TERMINE
+  ANNULE
+  REPORTE
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  RETARD
+  EXCUSE
+}
+
+enum JustificationStatus {
+  EN_ATTENTE
+  VALIDE
+  REJETE
+}
+
+enum AssessmentType {
+  CONTROLE_CONTINU
+  TRAVAUX_PRATIQUES
+  DEVOIR_SUR_TABLE
+  EXAMEN_FINAL
+  RATTRAPAGE
+}
+
+enum GradeStatus {
+  BROUILLON
+  VALIDE_SCOLARITE
+  PUBLIE
+}
+
+enum InvoiceStatus {
+  A_PAYER
+  PARTIELLEMENT_PAYE
+  PAYE
+  EN_RETARD
+  ANNULE
+}
+
+enum InvoiceLineType {
+  INSCRIPTION
+  SCOLARITE_TRANCHE
+  EXAMEN
+  BIBLIOTHEQUE
+  UNIFORME
+  ACTIVITE
+  AUTRE
+}
+
+enum PaymentStatus {
+  INITIALISE
+  EN_ATTENTE
+  VALIDE
+  ECHOUE
+  REMBOURSE
+}
+
+enum PaymentChannel {
+  ONLINE_MOBILE_MONEY
+  ONLINE_CARD
+  GUICHET_ESPECES
+  GUICHET_CHEQUE
+  GUICHET_VIREMENT
+}
+
+enum PaymentProviderType {
+  CINETPAY
+  STRIPE
+  FLUTTERWAVE
+  MANUAL_GUICHET
+  SANDBOX
+}
+
+enum TicketService {
+  FINANCES
+  SCOLARITE
+  PEDAGOGIE
+  DISCIPLINE
+  SUPPORT_TECHNIQUE
+}
+
+enum TicketStatus {
+  OUVERT
+  EN_COURS
+  RESOLU
+  CLOTURE
+}
+
+enum TicketPriority {
+  BASSE
+  NORMALE
+  HAUTE
+  URGENTE
+}
+
+enum DocumentRequestType {
+  ATTESTATION_INSCRIPTION
+  CERTIFICAT_SCOLARITE
+  RELEVE_NOTES_OFFICIEL
+  DUPLICATA_CARTE
+  CHANGEMENT_FILIERE
+  CONGE_ACADEMIQUE
+}
+
+enum DocumentRequestStatus {
+  SOUMISE
+  EN_TRAITEMENT
+  PRETE
+  LIVREE
+  REJETEE
+}
+
+enum DisciplineRecordType {
+  AVERTISSEMENT
+  BLAME
+  EXCLUSION_TEMPORAIRE
+  CONVOCATION_PARENT
+  FELICITATION
+  ENCOURAGEMENT
+}
+
+enum NotificationChannel {
+  PUSH
+  SMS
+  EMAIL
+  IN_APP
+}
+
+enum NotificationCategory {
+  FINANCE
+  PRESENCE
+  NOTES
+  EMPLOI_DU_TEMPS
+  MESSAGERIE
+  DISCIPLINE
+  URGENCE
+}
+
+enum PayerType {
+  PARENT
+  ETUDIANT
+  GUICHET
+  TIERS
+}
+
+enum OtpPurpose {
+  LOGIN
+  ACTIVATION
+  RESET_PASSWORD
+  TWO_FACTOR
+}
+
+enum AnnouncementTarget {
+  ALL
+  PROGRAM
+  GROUP
+  STUDENT
+  PARENT
+}
+
+enum InstallmentStatus {
+  SOUMISE
+  ACCEPTEE
+  REFUSEE
+}
+
+enum DisputeStatus {
+  OUVERTE
+  EN_EXAMEN
+  ACCEPTEE
+  REJETEE
+}
+
+enum AppointmentStatus {
+  DEMANDE
+  CONFIRME
+  ANNULE
+  TERMINE
+}
+
+enum CalendarEventType {
+  RENTREE
+  EXAMEN
+  VACANCES
+  FERIE
+  ECHEANCE_PAIEMENT
+  REUNION_PARENTS
+  AUTRE
+}
+
+// ==========================================
+// INSTITUTION & CAMPUS
+// ==========================================
+
+model Institution {
+  id              String         @id @default(uuid())
+  code            String         @unique @default("AFRAM")
+  nom             String         @default("Académie Franco-Américaine de Management")
+  sigle           String         @default("AFRAM")
+  deviseParDefaut String         @default("XAF")
+  logoUrl         String?
+  siteWeb         String?
+  telephone       String?
+  whatsapp        String?
+  emailContact    String?
+  campus          Campus[]
+  academicYears   AcademicYear[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Campus {
+  id            String      @id @default(uuid())
+  institutionId String
+  nom           String // "Batterie IV", "Louis"
+  ville         String      @default("Libreville")
+  adresse       String
+  climatise     Boolean     @default(true)
+  salles        Room[]
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+// ==========================================
+// UTILISATEURS & AUTHENTIFICATION (RBAC)
+// ==========================================
+
+model User {
+  id               String     @id @default(uuid())
+  email            String?    @unique
+  telephone        String?    @unique
+  passwordHash     String
+  role             UserRole
+  status           UserStatus @default(PENDING_ACTIVATION)
+  activationToken  String?    @unique
+  twoFactorSecret  String?
+  twoFactorEnabled Boolean    @default(false)
+  failedAttempts   Int        @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+  preferredLocale  String     @default("fr")
+
+  parentProfile  Parent?
+  studentProfile Student?
+  teacherProfile Teacher?
+
+  createdAuditLogs   AuditLog[]               @relation("UserAuditLogs")
+  deviceTokens       DeviceToken[]
+  sentMessages       Message[]
+  createdTickets     Conversation[]           @relation("UserCreatedTickets")
+  assignedTickets    Conversation[]           @relation("UserAssignedTickets")
+  notifications      Notification[]
+  processedPayments  Payment[]                @relation("CashierPayments")
+  paymentsInitiated  Payment[]                @relation("PayerUserPayments")
+  sessions           UserSession[]
+  otpCodes           OtpCode[]
+  notificationPrefs  NotificationPreference[]
+  appointments       Appointment[]            @relation("AppointmentRequester")
+  appointmentsHosted Appointment[]            @relation("AppointmentHost")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([email])
+  @@index([telephone])
+  @@index([role])
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  platform  String // "android" | "ios"
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// PROFILS ET RELATIONS PARENT - ÉTUDIANT
+// ==========================================
+
+model Parent {
+  id             String          @id @default(uuid())
+  userId         String          @unique
+  nom            String
+  prenom         String
+  profession     String?
+  adresse        String?
+  photoUrl       String?
+  contactUrgence String?
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  childrenLinks  ParentStudent[]
+  paymentsMade   Payment[]       @relation("ParentPayments")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Student {
+  id                  String               @id @default(uuid())
+  userId              String               @unique
+  matricule           String               @unique // ex: AFRAMSIL0102
+  nom                 String
+  prenom              String
+  dateNaissance       DateTime
+  photoUrl            String?
+  statut              StudentStatus        @default(INSCRIT)
+  dateInscription     DateTime             @default(now())
+  responsablePeda     String?
+  groupId             String
+  user                User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group               Group                @relation(fields: [groupId], references: [id])
+  parentLinks         ParentStudent[]
+  attendanceRecords   AttendanceRecord[]
+  grades              Grade[]
+  transcripts         Transcript[]
+  invoices            Invoice[]
+  disciplineRecords   DisciplineRecord[]
+  documentRequests    DocumentRequest[]
+  documentVaultItems  DocumentVault[]
+  installmentRequests InstallmentRequest[]
+  gradeDisputes       GradeDispute[]
+  conversations       Conversation[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+
+  @@index([matricule])
+  @@index([groupId])
+}
+
+model ParentStudent {
+  id            String             @id @default(uuid())
+  parentId      String
+  studentId     String
+  relationType  ParentRelationType
+  estPayeur     Boolean            @default(true)
+  peutConsulter Boolean            @default(true)
+  validePar     String?
+  valideLe      DateTime?
+  parent        Parent             @relation(fields: [parentId], references: [id], onDelete: Cascade)
+  student       Student            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime           @default(now())
+
+  @@unique([parentId, studentId])
+}
+
+// ==========================================
+// STRUCTURE ACADÉMIQUE
+// ==========================================
+
+model AcademicYear {
+  id            String      @id @default(uuid())
+  institutionId String
+  libelle       String // "2025-2026"
+  dateDebut     DateTime
+  dateFin       DateTime
+  estActif      Boolean     @default(false)
+  institution   Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  semesters     Semester[]
+  invoices      Invoice[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Semester {
+  id             String          @id @default(uuid())
+  academicYearId String
+  code           String // "S1", ..., "S6"
+  libelle        String
+  dateDebut      DateTime
+  dateFin        DateTime
+  estActif       Boolean         @default(false)
+  academicYear   AcademicYear    @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+  assessments    Assessment[]
+  transcripts    Transcript[]
+  slots          TimetableSlot[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Program {
+  id           String        @id @default(uuid())
+  nom          String // "Systèmes Informatiques et Logiciels"
+  code         String        @unique // "SIL"
+  niveau       String // "LICENCE", "MASTER"
+  courses      Course[]
+  groups       Group[]
+  feeTemplates FeeTemplate[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Group {
+  id          String          @id @default(uuid())
+  programId   String
+  nom         String // "L3 SIL"
+  anneeNiveau Int             @default(1)
+  program     Program         @relation(fields: [programId], references: [id], onDelete: Cascade)
+  students    Student[]
+  slots       TimetableSlot[]
+  assessments Assessment[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Course {
+  id          String          @id @default(uuid())
+  programId   String
+  code        String // "INF301"
+  nom         String // "Développement Flutter"
+  creditsEcts Int             @default(3)
+  coefficient Float           @default(1.0)
+  program     Program         @relation(fields: [programId], references: [id], onDelete: Cascade)
+  assessments Assessment[]
+  slots       TimetableSlot[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model Teacher {
+  id         String          @id @default(uuid())
+  userId     String          @unique
+  matricule  String          @unique
+  nom        String
+  prenom     String
+  specialite String?
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slots      TimetableSlot[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+model Room {
+  id          String          @id @default(uuid())
+  campusId    String
+  code        String // "S101", "AMPHI A"
+  capacite    Int
+  equipements String[]
+  campus      Campus          @relation(fields: [campusId], references: [id], onDelete: Cascade)
+  slots       TimetableSlot[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+// ==========================================
+// EMPLOI DU TEMPS
+// ==========================================
+
+model TimetableSlot {
+  id                String             @id @default(uuid())
+  semesterId        String
+  courseId          String
+  groupId           String
+  teacherId         String
+  roomId            String
+  dateDebut         DateTime
+  dateFin           DateTime
+  statut            SlotStatus         @default(PLANIFIE)
+  motifAnnulation   String?
+  sessionCodeQr     String?            @unique
+  semester          Semester           @relation(fields: [semesterId], references: [id])
+  course            Course             @relation(fields: [courseId], references: [id])
+  group             Group              @relation(fields: [groupId], references: [id])
+  teacher           Teacher            @relation(fields: [teacherId], references: [id])
+  room              Room               @relation(fields: [roomId], references: [id])
+  attendanceRecords AttendanceRecord[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([groupId, dateDebut])
+  @@index([teacherId, dateDebut])
+}
+
+// ==========================================
+// PRÉSENCES & JUSTIFICATIFS
+// ==========================================
+
+model AttendanceRecord {
+  id            String                @id @default(uuid())
+  slotId        String
+  studentId     String
+  statut        AttendanceStatus
+  minutesRetard Int                   @default(0)
+  saisiParId    String
+  justification AbsenceJustification?
+  slot          TimetableSlot         @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  student       Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@unique([slotId, studentId])
+}
+
+model AbsenceJustification {
+  id                 String              @id @default(uuid())
+  attendanceRecordId String              @unique
+  motif              String
+  documentUrl        String
+  statut             JustificationStatus @default(EN_ATTENTE)
+  commentaire        String?
+  decisionParId      String?
+  decisionDate       DateTime?
+  attendanceRecord   AttendanceRecord    @relation(fields: [attendanceRecordId], references: [id], onDelete: Cascade)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+}
+
+// ==========================================
+// NOTES, ÉVALUATIONS & BULLETINS
+// ==========================================
+
+model Assessment {
+  id              String         @id @default(uuid())
+  semesterId      String
+  courseId        String
+  groupId         String?
+  type            AssessmentType
+  titre           String
+  bareme          Float          @default(20.0)
+  coefficient     Float          @default(1.0)
+  statut          GradeStatus    @default(BROUILLON)
+  saisiParId      String
+  datePublication DateTime?
+  group           Group?         @relation(fields: [groupId], references: [id])
+  semester        Semester       @relation(fields: [semesterId], references: [id])
+  course          Course         @relation(fields: [courseId], references: [id])
+  grades          Grade[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Grade {
+  id           String          @id @default(uuid())
+  assessmentId String
+  studentId    String
+  valeur       Float
+  statut       GradeStatus     @default(BROUILLON)
+  assessment   Assessment      @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  student      Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  auditLogs    GradeAuditLog[]
+  disputes     GradeDispute[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@unique([assessmentId, studentId])
+}
+
+model GradeAuditLog {
+  id             String   @id @default(uuid())
+  gradeId        String
+  ancienneValeur Float?
+  nouvelleValeur Float
+  modifieParId   String
+  motif          String
+  adresseIp      String?
+  grade          Grade    @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+}
+
+model Transcript {
+  id            String   @id @default(uuid())
+  studentId     String
+  semesterId    String
+  moyenne       Float
+  creditsAcquis Int
+  mention       String?
+  rang          Int?
+  effectifTotal Int?
+  decision      String
+  pdfUrl        String
+  hashSignature String
+  student       Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  semester      Semester @relation(fields: [semesterId], references: [id])
+  createdAt     DateTime @default(now())
+
+  @@unique([studentId, semesterId])
+}
+
+// ==========================================
+// FINANCES & FACTURES (ENTIERS STRICTS)
+// ==========================================
+
+model FeeTemplate {
+  id           String   @id @default(uuid())
+  programId    String
+  libelle      String
+  montantTotal BigInt
+  devise       String   @default("XAF")
+  program      Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+}
+
+model Invoice {
+  id                  String               @id @default(uuid())
+  studentId           String
+  academicYearId      String
+  numeroFacture       String               @unique
+  montantTotal        BigInt
+  montantPaye         BigInt               @default(0)
+  soldeRestant        BigInt
+  devise              String               @default("XAF")
+  statut              InvoiceStatus        @default(A_PAYER)
+  dateEcheance        DateTime
+  student             Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear        AcademicYear         @relation(fields: [academicYearId], references: [id])
+  lines               InvoiceLine[]
+  payments            Payment[]
+  installmentRequests InstallmentRequest[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([studentId])
+  @@index([statut])
+}
+
+model InvoiceLine {
+  id         String          @id @default(uuid())
+  invoiceId  String
+  titre      String
+  type       InvoiceLineType
+  montant    BigInt
+  dateLimite DateTime
+  invoice    Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id               String              @id @default(uuid())
+  invoiceId        String
+  parentId         String?
+  payeParUserId    String?
+  payeurType       PayerType           @default(PARENT)
+  enregistreParId  String?
+  justificatifUrl  String?
+  reference        String              @unique
+  idempotencyKey   String              @unique
+  montant          BigInt
+  devise           String              @default("XAF")
+  canal            PaymentChannel
+  provider         PaymentProviderType
+  referenceExterne String?
+  statut           PaymentStatus       @default(INITIALISE)
+  metadata         Json?
+  invoice          Invoice             @relation(fields: [invoiceId], references: [id])
+  parent           Parent?             @relation("ParentPayments", fields: [parentId], references: [id])
+  cashier          User?               @relation("CashierPayments", fields: [enregistreParId], references: [id])
+  payeParUser      User?               @relation("PayerUserPayments", fields: [payeParUserId], references: [id])
+  receipt          Receipt?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([invoiceId])
+  @@index([idempotencyKey])
+}
+
+model Receipt {
+  id                  String   @id @default(uuid())
+  paymentId           String   @unique
+  numeroRecu          String   @unique
+  pdfUrl              String
+  qrTokenVerification String   @unique
+  payment             Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+}
+
+// ==========================================
+// MESSAGERIE, TICKETS & ANNONCES
+// ==========================================
+
+model Conversation {
+  id             String         @id @default(uuid())
+  numeroTicket   String         @unique
+  studentId      String?
+  satisfaction   Int?
+  slaDueAt       DateTime?
+  sujet          String
+  service        TicketService
+  priorite       TicketPriority @default(NORMALE)
+  statut         TicketStatus   @default(OUVERT)
+  creeParUserId  String
+  assigneAUserId String?
+  creePar        User           @relation("UserCreatedTickets", fields: [creeParUserId], references: [id])
+  assigneA       User?          @relation("UserAssignedTickets", fields: [assigneAUserId], references: [id])
+  student        Student?       @relation(fields: [studentId], references: [id])
+  messages       Message[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  auteurId       String
+  contenu        String
+  piecesJointes  String[]
+  estLu          Boolean      @default(false)
+  luLe           DateTime?
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  auteur         User         @relation(fields: [auteurId], references: [id])
+  createdAt      DateTime     @default(now())
+}
+
+model Announcement {
+  id              String             @id @default(uuid())
+  titre           String
+  contenu         String
+  targetType      AnnouncementTarget @default(ALL)
+  targetId        String?
+  datePublication DateTime           @default(now())
+  dateExpiration  DateTime?
+  piecesJointes   String[]
+  creeParId       String
+  createdAt       DateTime           @default(now())
+}
+
+// ==========================================
+// DÉMARCHES & DOCUMENTS
+// ==========================================
+
+model DocumentRequest {
+  id                String                @id @default(uuid())
+  studentId         String
+  type              DocumentRequestType
+  motif             String?
+  statut            DocumentRequestStatus @default(SOUMISE)
+  documentGenereUrl String?
+  traiteParId       String?
+  student           Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+}
+
+model DocumentVault {
+  id                String   @id @default(uuid())
+  studentId         String
+  titre             String
+  categorie         String
+  fichierUrl        String
+  estSigne          Boolean  @default(false)
+  signatureMetadata Json?
+  student           Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+}
+
+// ==========================================
+// DISCIPLINE
+// ==========================================
+
+model DisciplineRecord {
+  id                String               @id @default(uuid())
+  studentId         String
+  type              DisciplineRecordType
+  motif             String
+  sanction          String?
+  dateIncident      DateTime
+  convocationDate   DateTime?
+  accuseReception   Boolean              @default(false)
+  accuseReceptionLe DateTime?
+  enregistreParId   String
+  student           Student              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt         DateTime             @default(now())
+}
+
+// ==========================================
+// NOTIFICATIONS & AUDIT IMMUABLE
+// ==========================================
+
+model Notification {
+  id          String               @id @default(uuid())
+  userId      String
+  titre       String
+  corps       String
+  canal       NotificationChannel  @default(PUSH)
+  categorie   NotificationCategory
+  dataPayload Json?
+  estLu       Boolean              @default(false)
+  luLe        DateTime?
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime             @default(now())
+
+  @@index([userId, estLu])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entite    String
+  entiteId  String
+  avant     Json?
+  apres     Json?
+  adresseIp String?
+  userAgent String?
+  user      User?    @relation("UserAuditLogs", fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([entite, entiteId])
+  @@index([createdAt])
+}
+
+// ==========================================
+// SESSIONS, OTP, RBAC & PARAMÈTRES
+// ==========================================
+
+model UserSession {
+  id         String    @id @default(uuid())
+  userId     String
+  familyId   String // chaîne de rotation : réutiliser un ancien jeton révoque toute la famille
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedBy String?
+  userAgent  String?
+  adresseIp  String?
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+}
+
+model OtpCode {
+  id          String     @id @default(uuid())
+  userId      String?
+  destination String // téléphone ou email
+  purpose     OtpPurpose
+  codeHash    String
+  attempts    Int        @default(0)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+
+  @@index([destination, purpose])
+}
+
+model RolePermission {
+  id         String   @id @default(uuid())
+  role       UserRole
+  permission String // ex: "finance.read", "grades.publish"
+  createdAt  DateTime @default(now())
+
+  @@unique([role, permission])
+}
+
+model AppSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model NotificationPreference {
+  id        String               @id @default(uuid())
+  userId    String
+  categorie NotificationCategory
+  push      Boolean              @default(true)
+  sms       Boolean              @default(false)
+  email     Boolean              @default(false)
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categorie])
+}
+
+// ==========================================
+// ÉCHELONNEMENT, RÉCLAMATIONS, RDV, CALENDRIER
+// ==========================================
+
+model InstallmentRequest {
+  id             String            @id @default(uuid())
+  invoiceId      String
+  studentId      String
+  demandeParId   String
+  nombreTranches Int
+  motif          String
+  statut         InstallmentStatus @default(SOUMISE)
+  reponse        String?
+  traiteParId    String?
+  invoice        Invoice           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  student        Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model GradeDispute {
+  id           String        @id @default(uuid())
+  gradeId      String
+  studentId    String
+  demandeParId String
+  motif        String
+  statut       DisputeStatus @default(OUVERTE)
+  reponse      String?
+  traiteParId  String?
+  grade        Grade         @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  student      Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Appointment {
+  id          String            @id @default(uuid())
+  demandeurId String
+  hoteId      String
+  objet       String
+  debut       DateTime
+  fin         DateTime
+  statut      AppointmentStatus @default(DEMANDE)
+  lieu        String?
+  demandeur   User              @relation("AppointmentRequester", fields: [demandeurId], references: [id])
+  hote        User              @relation("AppointmentHost", fields: [hoteId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model CalendarEvent {
+  id          String             @id @default(uuid())
+  titre       String
+  description String?
+  type        CalendarEventType
+  debut       DateTime
+  fin         DateTime
+  targetType  AnnouncementTarget @default(ALL)
+  targetId    String?
+  createdAt   DateTime           @default(now())
+
+  @@index([debut])
+}

@@ -1,0 +1,50 @@
+# Services d'infrastructure UniParent (développement local).
+# PostgreSQL est exposé sur 5433 : le port 5432 est déjà utilisé par un PostgreSQL installé sur le poste.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uniparent_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-uniparent_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-uniparent_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-uniparent_afram_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: uniparent_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # Stockage objet compatible S3 (pièces jointes, justificatifs, documents).
+  # MinIO ne publie plus d'images publiques : RustFS (Apache-2.0) le remplace.
+  s3:
+    image: rustfs/rustfs:latest
+    container_name: uniparent_s3
+    restart: unless-stopped
+    environment:
+      RUSTFS_ACCESS_KEY: ${S3_ACCESS_KEY:-uniparent_s3}
+      RUSTFS_SECRET_KEY: ${S3_SECRET_KEY:-uniparent_s3_secret_2026}
+      RUSTFS_CONSOLE_ENABLE: "true"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - s3_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  s3_data:

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- app-store : TestFlight / App Store. ad-hoc : installation directe sur des iPhone enregistrés. -->
+	<key>method</key>
+	<string>app-store</string>
+	<!-- À remplacer par l'identifiant d'équipe Apple Developer (10 caractères). -->
+	<key>teamID</key>
+	<string>XXXXXXXXXX</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>uploadSymbols</key>
+	<true/>
+</dict>
+</plist>

@@ -1,0 +1,21 @@
+default_platform(:android)
+
+platform :android do
+  desc "Publie l'AAB prod sur la piste de test interne Google Play"
+  lane :internal do
+    upload_to_play_store(
+      package_name: "ga.afram.uniparent",
+      track: "internal",
+      aab: "../build/app/outputs/bundle/prodRelease/app-prod-release.aab",
+      json_key_data: ENV["PLAY_STORE_JSON_KEY"],
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Promotion test interne → production (déploiement progressif 10 %)"
+  lane :promote do
+    upload_to_play_store(package_name: "ga.afram.uniparent", track: "internal", track_promote_to: "production", rollout: "0.1", json_key_data: ENV["PLAY_STORE_JSON_KEY"])
+  end
+end

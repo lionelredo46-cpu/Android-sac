@@ -1,0 +1,36 @@
+@import 'tailwindcss';
+
+/* Palette AFRAM et couleurs sémantiques (vert payé, orange en attente, rouge impayé, bleu info). */
+@theme {
+  --color-primary: #0a3871;
+  --color-primary-dark: #051d3b;
+  --color-gold: #e5a93c;
+  --color-success: #0f9d6b;
+  --color-warning: #c27803;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-muted: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-fg: #0f172a;
+  --color-subtle: #64748b;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0b132b;
+    --color-surface: #1c2541;
+    --color-muted: #18213a;
+    --color-border: #334155;
+    --color-fg: #f8fafc;
+    --color-subtle: #94a3b8;
+  }
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
