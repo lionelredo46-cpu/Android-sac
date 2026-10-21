@@ -1,0 +1,70 @@
+# Compile l'application iOS sur un Mac fourni par GitHub (impossible sous Windows).
+# Onglet Actions → « Build iOS (IPA) » → Run workflow, puis télécharger l'artefact « uniparent-ios ».
+# L'IPA produit n'est pas signé : installation via Xcode, AltStore ou Sideloadly.
+name: Build iOS (IPA)
+
+on:
+  # Branche de compilation : chaque push produit l'IPA de démonstration (API du PC de démo).
+  push:
+    branches: [ios-build]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Point d'entrée
+        type: choice
+        options: [lib/main_prod.dart, lib/main_staging.dart, lib/main_dev.dart]
+        default: lib/main_prod.dart
+      api_base_url:
+        description: URL de l'API (facultatif, ex. http://192.168.13.64:3000 pour la démo)
+        required: false
+        default: ''
+
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      TARGET: ${{ inputs.target || 'lib/main_dev.dart' }}
+      API_BASE_URL: ${{ github.event_name == 'push' && 'http://192.168.13.64:3000' || inputs.api_base_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Dépendances et génération de code
+        run: |
+          flutter pub get
+          dart run build_runner build
+          flutter gen-l10n
+
+      # Démo : l'API tourne en HTTP sur le PC du réseau local (comme le flavor Android dev).
+      - name: Autoriser le HTTP (démo uniquement)
+        if: env.TARGET == 'lib/main_dev.dart'
+        run: |
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" ios/Runner/Info.plist || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSLocalNetworkUsageDescription string 'Connexion au serveur UniParent de démonstration'" ios/Runner/Info.plist || true
+
+      - name: Compilation (sans signature)
+        run: |
+          DEFINES=()
+          if [ -n "$API_BASE_URL" ]; then DEFINES+=("--dart-define=API_BASE_URL=$API_BASE_URL"); fi
+          flutter build ios --release --no-codesign -t "$TARGET" "${DEFINES[@]}"
+
+      - name: Création de l'IPA
+        run: |
+          NAME="UniParent-$(basename "$TARGET" .dart | sed 's/^main_//')-$(grep -E '^version:' pubspec.yaml | awk '{print $2}')-unsigned"
+          mkdir -p build/ios/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          (cd build/ios/ipa && zip -qr "$NAME.ipa" Payload && rm -rf Payload)
+          ls -lh build/ios/ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uniparent-ios
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
