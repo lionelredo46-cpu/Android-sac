@@ -1,6 +1,8 @@
 # Remplit la base Railway avec les comptes de démonstration (backend/prisma/seed.ts).
 # Déclenchement manuel uniquement : onglet Actions → « Seed Railway database » → Run workflow.
-# Nécessite le secret de dépôt RAILWAY_DATABASE_PUBLIC_URL (Settings → Secrets and variables → Actions).
+# Nécessite les secrets de dépôt RAILWAY_DATABASE_PUBLIC_URL et RECEIPT_SIGNING_SECRET
+# (Settings → Secrets and variables → Actions) — ce dernier doit avoir la même valeur que
+# la variable RECEIPT_SIGNING_SECRET du service Railway.
 name: Seed Railway database
 
 on:
@@ -24,6 +26,7 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: ${{ secrets.RAILWAY_DATABASE_PUBLIC_URL }}
+          RECEIPT_SIGNING_SECRET: ${{ secrets.RECEIPT_SIGNING_SECRET }}
         run: |
           npx prisma migrate deploy
           npm run prisma:seed
