@@ -547,6 +547,8 @@ async function main() {
 main()
   .catch((e) => {
     console.error(e);
-    process.exit(1);
+    // `process.exitCode` (pas `process.exit()`) : laisse Node vider les flux en attente avant
+    // de quitter — un exit immédiat peut tronquer `console.error` ci-dessus (sortie non-TTY en CI).
+    process.exitCode = 1;
   })
   .finally(() => prisma.$disconnect());
