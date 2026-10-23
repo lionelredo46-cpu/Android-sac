@@ -4,16 +4,16 @@
 name: Build iOS (IPA)
 
 on:
-  # Branche de compilation : chaque push produit l'IPA de démo autonome (sans serveur).
+  # Branche de compilation : chaque push produit l'IPA de recette (API Railway).
   push:
     branches: [ios-build]
   workflow_dispatch:
     inputs:
       target:
-        description: Point d'entrée (main_demo = démo autonome, données sur l'iPhone)
+        description: Point d'entrée (main_staging = recette sur l'API Railway)
         type: choice
-        options: [lib/main_demo.dart, lib/main_prod.dart, lib/main_staging.dart, lib/main_dev.dart]
-        default: lib/main_demo.dart
+        options: [lib/main_staging.dart, lib/main_prod.dart, lib/main_dev.dart]
+        default: lib/main_staging.dart
       api_base_url:
         description: URL de l'API (facultatif, ex. http://192.168.13.64:3000 pour la démo)
         required: false
@@ -24,7 +24,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 60
     env:
-      TARGET: ${{ inputs.target || 'lib/main_demo.dart' }}
+      TARGET: ${{ inputs.target || 'lib/main_staging.dart' }}
       API_BASE_URL: ${{ inputs.api_base_url }}
     steps:
       - uses: actions/checkout@v4

@@ -29,10 +29,10 @@ class SlotDetailPage extends ConsumerWidget {
     return Theme(
       data: ObsidianTheme.of(Theme.of(context)),
       child: Scaffold(
-        backgroundColor: ObsidianColors.abyss,
+        backgroundColor: ObsidianColors.scaffold(context),
         appBar: AppBar(title: Text(l.ttSlotDetail, style: ObsidianText.title())),
         body: DecoratedBox(
-          decoration: const BoxDecoration(gradient: ObsidianColors.background),
+          decoration: ObsidianColors.backdrop(context),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [

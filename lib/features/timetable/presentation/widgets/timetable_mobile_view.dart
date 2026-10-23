@@ -80,7 +80,7 @@ class TimetableMobileView extends StatelessWidget {
     final dayMode = data.state.mobileMode == TimetableMobileMode.day;
 
     return DecoratedBox(
-      decoration: const BoxDecoration(gradient: ObsidianColors.background),
+      decoration: ObsidianColors.backdrop(context),
       child: Stack(
         children: [
           Positioned.fill(

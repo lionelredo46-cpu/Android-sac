@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/constants/app_text_styles.dart';
 import '../../../core/router/route_paths.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/ui.dart';
@@ -52,20 +53,44 @@ class _NewTicketPageState extends ConsumerState<NewTicketPage> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final child = ref.watch(activeChildProvider);
+    final s = context.strato;
     return Scaffold(
       appBar: AppBar(title: Text(l.newTicket)),
       body: Form(
         key: _formKey,
-        child: ListView(padding: const EdgeInsets.all(16), children: [
-          if (child != null) Card(child: ListTile(leading: Avatar(child.initials, radius: 18), title: Text(child.fullName), subtitle: Text(child.matricule))),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: _service,
-            decoration: InputDecoration(labelText: l.service),
-            items: ['FINANCES', 'SCOLARITE', 'PEDAGOGIE', 'DISCIPLINE', 'SUPPORT_TECHNIQUE'].map((s) => DropdownMenuItem(value: s, child: Text(serviceLabel(l, s)))).toList(),
-            onChanged: (v) => setState(() => _service = v ?? 'FINANCES'),
+        child: ListView(padding: EdgeInsets.fromLTRB(16, 6, 16, 28 + context.bottomInset), children: [
+          if (child != null)
+            Reveal(
+              child: GlassCard(
+                padding: const EdgeInsets.all(12),
+                child: Row(children: [
+                  Avatar(child.initials, radius: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text(child.fullName, style: AppTextStyles.bodyLarge.copyWith(color: s.text, fontWeight: FontWeight.w700)),
+                      Text(child.matricule, style: AppTextStyles.caption.copyWith(color: s.gold, letterSpacing: 1)),
+                    ]),
+                  ),
+                ]),
+              ),
+            ),
+          SectionLabel(l.service),
+          Reveal(
+            index: 1,
+            child: Wrap(spacing: 8, runSpacing: 8, children: [
+              for (final svc in ['FINANCES', 'SCOLARITE', 'PEDAGOGIE', 'DISCIPLINE', 'SUPPORT_TECHNIQUE'])
+                ChoiceChip(
+                  avatar: Icon(serviceIcon(svc), size: 16, color: _service == svc ? s.onGold : serviceColor(svc)),
+                  label: Text(serviceLabel(l, svc)),
+                  selected: _service == svc,
+                  selectedColor: s.gold,
+                  labelStyle: AppTextStyles.bodySmall.copyWith(color: _service == svc ? s.onGold : s.text, fontWeight: FontWeight.w700),
+                  onSelected: (_) => setState(() => _service = svc),
+                ),
+            ]),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 18),
           DropdownButtonFormField<String>(
             initialValue: _priority,
             decoration: InputDecoration(labelText: l.priority),
@@ -90,14 +115,7 @@ class _NewTicketPageState extends ConsumerState<NewTicketPage> {
             decoration: InputDecoration(labelText: l.message, alignLabelWithHint: true),
             validator: (v) => (v ?? '').trim().isEmpty ? l.fieldRequired : null,
           ),
-          OutlinedButton.icon(
-            icon: Icon(_file == null ? Icons.attach_file_rounded : Icons.check_circle_rounded),
-            label: Text(_file?.name ?? l.attachment, overflow: TextOverflow.ellipsis),
-            onPressed: () async {
-              final f = await pickProof(context);
-              if (f != null) setState(() => _file = f);
-            },
-          ),
+          AttachmentPicker(file: _file, label: l.attachment, onPicked: (f) => setState(() => _file = f)),
           const SizedBox(height: 24),
           AppButton(text: l.send, icon: Icons.send_rounded, isLoading: _loading, onPressed: _submit),
         ]),

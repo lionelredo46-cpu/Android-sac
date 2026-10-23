@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/ui.dart';
 import '../../attendance/presentation/attendance_tab.dart';
 import '../../children/presentation/child_scope.dart';
@@ -20,12 +19,7 @@ class TrackingPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(l.trackingTitle),
-          bottom: TabBar(
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: AppColors.aframGold,
-            tabs: [Tab(text: l.attendanceTitle), Tab(text: l.gradesTitle)],
-          ),
+          bottom: StratoTabBar(tabs: [l.attendanceTitle, l.gradesTitle]),
         ),
         body: ChildScope(builder: (context, child) => TabBarView(children: [AttendanceTab(child: child), GradesTab(child: child)])),
       ),

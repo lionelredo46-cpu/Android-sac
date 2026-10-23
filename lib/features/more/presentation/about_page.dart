@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/widgets/ui.dart';
+import '../../auth/presentation/auth_scaffold.dart';
 
 /// À propos, aide (FAQ), confidentialité et contact AFRAM.
 class AboutPage extends StatelessWidget {
@@ -22,34 +22,65 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final s = context.strato;
+    Widget contact(IconData icon, Color color, String label, VoidCallback? onTap) => GlassCard(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(12),
+          radius: 20,
+          onTap: onTap,
+          semanticLabel: label,
+          child: Row(children: [
+            GlowIcon(icon, color: color, size: 40),
+            const SizedBox(width: 12),
+            Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: s.text, fontWeight: FontWeight.w600))),
+            if (onTap != null) Icon(Icons.arrow_outward_rounded, size: 18, color: s.textFaint),
+          ]),
+        );
+
     return Scaffold(
       appBar: AppBar(title: Text(l.about)),
-      body: ListView(padding: const EdgeInsets.all(16), children: [
-        Center(child: Image.asset('Afram/assets/logo/logo-afram-officiel.png', height: 90, errorBuilder: (_, __, ___) => const SizedBox.shrink())),
-        const SizedBox(height: 8),
-        Center(child: Text('UniParent AFRAM', style: AppTextStyles.h2)),
+      body: ListView(padding: EdgeInsets.fromLTRB(16, 0, 16, 32 + context.bottomInset), children: [
+        const Reveal(offset: 0, child: Center(child: OrbitLogo(size: 130))),
+        const SizedBox(height: 10),
+        Center(child: Text('UniParent AFRAM', style: AppTextStyles.h1.copyWith(color: s.text, fontSize: 26))),
         FutureBuilder<PackageInfo>(
           future: PackageInfo.fromPlatform(),
-          builder: (_, s) => Center(child: Text(s.hasData ? l.version('${s.data!.version} (${s.data!.buildNumber})') : '', style: AppTextStyles.caption)),
+          builder: (_, snap) => Center(
+            child: Text(snap.hasData ? l.version('${snap.data!.version} (${snap.data!.buildNumber})') : '', style: AppTextStyles.caption.copyWith(color: s.textFaint)),
+          ),
         ),
-        const SizedBox(height: 20),
-        Text(l.help, style: AppTextStyles.h3),
-        ..._faq.map((q) => ExpansionTile(title: Text(q.$1), children: [Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 12), child: Text(q.$2))])),
-        const SizedBox(height: 16),
-        Text(l.contactSchool, style: AppTextStyles.h3),
-        ListTile(leading: const Icon(Icons.phone_rounded, color: AppColors.aframPrimary), title: const Text('+241 066 70 11 84'), onTap: () => launchUrl(Uri.parse('tel:+241066701184'))),
-        ListTile(leading: const Icon(Icons.chat_rounded, color: AppColors.success), title: const Text('WhatsApp +241 074 00 00 43'), onTap: () => launchUrl(Uri.parse('https://wa.me/241074000043'), mode: LaunchMode.externalApplication)),
-        ListTile(leading: const Icon(Icons.email_rounded, color: AppColors.aframPrimary), title: const Text('aframilesmail@aframgabon.com'), onTap: () => launchUrl(Uri.parse('mailto:aframilesmail@aframgabon.com'))),
-        const ListTile(leading: Icon(Icons.schedule_rounded), title: Text('Lun–Ven 08:00–20:00 · Sam 08:00–14:00')),
-        const SizedBox(height: 16),
-        Text(l.privacy, style: AppTextStyles.h3),
-        const Padding(
-          padding: EdgeInsets.symmetric(vertical: 8),
-          child: Text(
-            'Vos données (identité, scolarité, paiements) sont traitées par l’AFRAM uniquement pour le suivi de la scolarité. '
-            'Elles sont chiffrées en transit, l’accès est limité aux personnes habilitées et chaque opération sensible est journalisée. '
-            'Aucune donnée de carte bancaire n’est stockée. Vous pouvez demander l’accès, la rectification ou la suppression de vos données '
-            'auprès de la scolarité via la messagerie.',
+        SectionLabel(l.help),
+        Reveal(
+          index: 1,
+          child: GlassCard(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(children: [
+              for (final q in _faq)
+                ExpansionTile(
+                  title: Text(q.$1, style: AppTextStyles.bodyMedium.copyWith(color: s.text, fontWeight: FontWeight.w600)),
+                  childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 14),
+                  expandedAlignment: Alignment.centerLeft,
+                  children: [Text(q.$2, style: AppTextStyles.bodySmall.copyWith(color: s.textMuted))],
+                ),
+            ]),
+          ),
+        ),
+        SectionLabel(l.contactSchool),
+        Reveal(index: 2, child: contact(Icons.phone_rounded, s.accent, '+241 066 70 11 84', () => launchUrl(Uri.parse('tel:+241066701184')))),
+        Reveal(index: 3, child: contact(Icons.chat_rounded, s.success, 'WhatsApp +241 074 00 00 43', () => launchUrl(Uri.parse('https://wa.me/241074000043'), mode: LaunchMode.externalApplication))),
+        Reveal(index: 4, child: contact(Icons.email_rounded, s.gold, 'aframilesmail@aframgabon.com', () => launchUrl(Uri.parse('mailto:aframilesmail@aframgabon.com')))),
+        Reveal(index: 5, child: contact(Icons.schedule_rounded, s.textMuted, 'Lun–Ven 08:00–20:00 · Sam 08:00–14:00', null)),
+        SectionLabel(l.privacy),
+        Reveal(
+          index: 6,
+          child: GlassCard(
+            child: Text(
+              'Vos données (identité, scolarité, paiements) sont traitées par l’AFRAM uniquement pour le suivi de la scolarité. '
+              'Elles sont chiffrées en transit, l’accès est limité aux personnes habilitées et chaque opération sensible est journalisée. '
+              'Aucune donnée de carte bancaire n’est stockée. Vous pouvez demander l’accès, la rectification ou la suppression de vos données '
+              'auprès de la scolarité via la messagerie.',
+              style: AppTextStyles.bodySmall.copyWith(color: s.textMuted, height: 1.55),
+            ),
           ),
         ),
       ]),

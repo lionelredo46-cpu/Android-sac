@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import '../constants/app_colors.dart';
 
+import '../theme/strato.dart';
+
+/// Bloc de chargement : verre qui scintille.
 class LoadingSkeleton extends StatelessWidget {
   final double width;
   final double height;
@@ -30,16 +32,16 @@ class LoadingSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
+    final s = context.strato;
     return Shimmer.fromColors(
-      baseColor: isDark ? AppColors.surfaceDark : AppColors.shimmerBase,
-      highlightColor: isDark ? AppColors.borderDark : AppColors.shimmerHighlight,
+      baseColor: s.isDark ? const Color(0x14FFFFFF) : const Color(0x140A1F44),
+      highlightColor: s.isDark ? const Color(0x33FFFFFF) : const Color(0x060A1F44),
+      period: const Duration(milliseconds: 1700),
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),

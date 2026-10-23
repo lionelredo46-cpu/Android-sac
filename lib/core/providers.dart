@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'demo/local_backend.dart';
 import 'network/api_client.dart';
 import 'network/dio_client.dart';
 import 'storage/cache_store.dart';
@@ -13,9 +12,6 @@ import 'storage/shared_prefs_service.dart';
 /// Initialisés dans bootstrap() puis injectés via ProviderScope.overrides.
 final sharedPrefsProvider = Provider<SharedPrefsService>((_) => throw UnimplementedError('sharedPrefsProvider'));
 final cacheStoreProvider = Provider<CacheStore>((_) => throw UnimplementedError('cacheStoreProvider'));
-
-/// Serveur simulé du mode démo autonome (null : API réelle).
-final localBackendProvider = Provider<LocalBackend?>((_) => null);
 
 final secureStorageProvider = Provider<SecureStorageService>((_) => SecureStorageService());
 
@@ -31,10 +27,6 @@ final apiClientProvider = Provider<ApiClient>((ref) {
   final client = DioClient(
     storageService: ref.watch(secureStorageProvider),
     onSessionExpired: () => expired.add(null),
-    adapter: switch (ref.watch(localBackendProvider)) {
-      final local? => LocalHttpAdapter(local),
-      null => null,
-    },
   );
   return ApiClient(client.dio);
 });

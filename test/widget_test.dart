@@ -10,6 +10,7 @@ import 'package:uniparent/core/l10n/generated/app_localizations.dart';
 import 'package:uniparent/core/providers.dart';
 import 'package:uniparent/core/storage/cache_store.dart';
 import 'package:uniparent/core/storage/shared_prefs_service.dart';
+import 'package:uniparent/core/theme/app_theme.dart';
 import 'package:uniparent/core/widgets/ui.dart';
 import 'package:uniparent/features/auth/application/session_controller.dart';
 import 'package:uniparent/features/auth/domain/app_user.dart';
@@ -47,6 +48,9 @@ Future<Widget> _app(Widget home, {List<Override> overrides = const []}) async {
   return ProviderScope(
     overrides: [sharedPrefsProvider.overrideWithValue(prefs), ...overrides],
     child: MaterialApp(
+      theme: AppTheme.darkTheme,
+      // Animations continues (ciel, reflets, anneaux) coupées : pumpAndSettle doit pouvoir se stabiliser.
+      builder: (context, child) => MediaQuery(data: MediaQuery.of(context).copyWith(disableAnimations: true), child: child!),
       locale: const Locale('fr'),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
@@ -67,10 +71,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Email ou téléphone'), findsOneWidget);
+    // Formulaire plus haut que l'écran de test (800 × 600) : on fait défiler jusqu'au bouton.
+    await tester.ensureVisible(find.text('Se connecter'));
     await tester.tap(find.text('Se connecter'));
     await tester.pump();
     expect(find.text('Champ obligatoire'), findsNWidgets(2));
 
+    await tester.ensureVisible(find.text('SMS'));
     await tester.tap(find.text('SMS'));
     await tester.pumpAndSettle();
     expect(find.text('Numéro de téléphone'), findsOneWidget);

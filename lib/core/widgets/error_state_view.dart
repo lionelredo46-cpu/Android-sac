@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import '../constants/app_colors.dart';
+
 import '../constants/app_text_styles.dart';
+import '../theme/strato.dart';
+import 'app_button.dart';
+import 'empty_state_view.dart';
 
 class ErrorStateView extends StatelessWidget {
   final String title;
@@ -13,57 +16,26 @@ class ErrorStateView extends StatelessWidget {
     this.title = 'Une erreur est survenue',
     required this.message,
     this.onRetry,
-    this.icon = Icons.error_outline_rounded,
+    this.icon = Icons.cloud_off_rounded,
   });
 
   @override
   Widget build(BuildContext context) {
+    final s = context.strato;
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.error.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 48,
-                color: AppColors.error,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              title,
-              style: AppTextStyles.h3,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Réessayer'),
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(160, 48),
-                ),
-              ),
-            ],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          OrbitEmblem(icon: icon, color: s.danger),
+          const SizedBox(height: 24),
+          Text(title, style: AppTextStyles.h2.copyWith(color: s.text, fontSize: 21), textAlign: TextAlign.center),
+          const SizedBox(height: 8),
+          Text(message, style: AppTextStyles.bodyMedium.copyWith(color: s.textMuted), textAlign: TextAlign.center),
+          if (onRetry != null) ...[
+            const SizedBox(height: 24),
+            SizedBox(width: 220, child: AppButton(text: 'Réessayer', icon: Icons.refresh_rounded, onPressed: onRetry, isOutlined: true)),
           ],
-        ),
+        ]),
       ),
     );
   }

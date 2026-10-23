@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/config/flavor_config.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../core/providers.dart';
 import '../../../core/router/route_paths.dart';
 import '../../../core/widgets/ui.dart';
 import '../application/session_controller.dart';
@@ -22,13 +23,13 @@ class DemoAccount {
 }
 
 const demoAccounts = [
-  DemoAccount('Parent — Jean-Marc OBIANG', 'parent@aframgabon.com', '2 enfants · tranche en retard', Icons.family_restroom_rounded, AppColors.aframPrimary),
+  DemoAccount('Parent — Jean-Marc OBIANG', 'parent@aframgabon.com', '2 enfants · tranche en retard', Icons.family_restroom_rounded, AppColors.aframGold),
   DemoAccount('Étudiant — Alexandre OBIANG', 'alexandre.obiang@etudiant.afram.ga', 'L3 SIL · scan QR de présence', Icons.school_rounded, AppColors.success),
   DemoAccount('Étudiante — Grâce OBIANG', 'grace.obiang@etudiant.afram.ga', 'L1 MGO · dossier incomplet', Icons.school_outlined, AppColors.info),
-  DemoAccount('Camarade — Lucie MBA', 'etudiant1@etudiant.afram.ga', 'Test anti-IDOR (autre famille)', Icons.person_outline_rounded, AppColors.textSecondaryLight),
+  DemoAccount('Camarade — Lucie MBA', 'etudiant1@etudiant.afram.ga', 'Test anti-IDOR (autre famille)', Icons.person_outline_rounded, Color(0xFF8B7BFF)),
 ];
 
-/// Connexion en un appui (flavor dev uniquement — jamais affiché en recette ni en production).
+/// Connexion en un appui (développement et recette — jamais affiché en production).
 class DemoAccountsPanel extends ConsumerStatefulWidget {
   const DemoAccountsPanel({super.key});
 
@@ -50,57 +51,99 @@ class _DemoAccountsPanelState extends ConsumerState<DemoAccountsPanel> {
     }
   }
 
+  /// Pointe l'application vers un autre serveur (ex. domaine Railway) sans la recompiler.
+  Future<void> _changeServer() async {
+    final config = FlavorConfig.instance;
+    final url = TextEditingController(text: config.apiBaseUrl);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        icon: Icon(Icons.dns_rounded, color: ctx.strato.gold, size: 30),
+        title: const Text('Serveur de l’API'),
+        content: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          TextField(
+            controller: url,
+            keyboardType: TextInputType.url,
+            autocorrect: false,
+            decoration: const InputDecoration(labelText: 'Adresse', hintText: 'https://….up.railway.app'),
+          ),
+          const SizedBox(height: 8),
+          Text('Par défaut : ${config.defaultApiBaseUrl}', style: AppTextStyles.caption.copyWith(color: ctx.strato.textMuted)),
+        ]),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, ''), child: const Text('Par défaut')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, url.text.trim()), child: Text(ctx.l10n.save)),
+        ],
+      ),
+    );
+    if (result == null || !mounted) return;
+    final value = result.replaceAll(RegExp(r'/+$'), '');
+    if (value.isNotEmpty && Uri.tryParse(value)?.hasScheme != true) return context.showSnack('Adresse invalide (http:// ou https://)', error: true);
+    final next = value.isEmpty || value == config.defaultApiBaseUrl ? null : value;
+    await ref.read(sharedPrefsProvider).setApiBaseUrl(next);
+    FlavorConfig.overrideApiBaseUrl(next);
+    ref.invalidate(apiClientProvider);
+    setState(() {});
+    if (mounted) context.showSnack('Serveur : ${FlavorConfig.instance.apiBaseUrl}');
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (!FlavorConfig.isDev) return const SizedBox.shrink();
-    return Container(
-      margin: const EdgeInsets.only(top: 24),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.aframGold.withValues(alpha: 0.08),
-        border: Border.all(color: AppColors.aframGold.withValues(alpha: 0.5)),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    if (!FlavorConfig.testTools) return const SizedBox.shrink();
+    final s = context.strato;
+    Widget tile({required IconData icon, required Color color, required String title, required String subtitle, required Widget trailing, VoidCallback? onTap}) => GlassCard(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.fromLTRB(12, 12, 14, 12),
+          radius: 20,
+          onTap: onTap,
+          child: Row(children: [
+            GlowIcon(icon, color: color, size: 42),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(title, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700, color: s.text)),
+                const SizedBox(height: 2),
+                Text(subtitle, style: AppTextStyles.bodySmall.copyWith(color: s.textMuted)),
+              ]),
+            ),
+            trailing,
+          ]),
+        );
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 18),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        Row(children: [
-          const Icon(Icons.science_rounded, color: AppColors.aframGold, size: 20),
-          const SizedBox(width: 8),
-          Expanded(child: Text('Comptes de démonstration', style: AppTextStyles.h3)),
-        ]),
+        SectionLabel('Comptes de démonstration', trailing: Icon(Icons.science_rounded, color: s.gold, size: 18)),
         Padding(
-          padding: const EdgeInsets.only(top: 2, bottom: 8),
-          child: Text(
-            FlavorConfig.instance.localBackend
-                ? 'Démo autonome : données stockées sur ce téléphone, aucune connexion requise. Touchez un compte (mot de passe $demoPassword).'
-                : 'Touchez un compte pour vous connecter (mot de passe $demoPassword)',
-            style: AppTextStyles.bodySmall,
-          ),
+          padding: const EdgeInsets.only(left: 4, bottom: 10),
+          child: Text('Touchez un compte pour vous connecter (mot de passe $demoPassword)', style: AppTextStyles.bodySmall.copyWith(color: s.textMuted)),
         ),
         for (final a in demoAccounts)
-          Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              dense: true,
-              leading: CircleAvatar(backgroundColor: a.color.withValues(alpha: 0.12), child: Icon(a.icon, color: a.color)),
-              title: Text(a.label, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-              subtitle: Text('${a.identifier}\n${a.detail}', style: AppTextStyles.bodySmall),
-              isThreeLine: true,
-              trailing: _loading == a.identifier
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.login_rounded, color: AppColors.aframPrimary),
-              onTap: _loading == null ? () => _login(a) : null,
-            ),
+          tile(
+            icon: a.icon,
+            color: a.color,
+            title: a.label,
+            subtitle: '${a.identifier}\n${a.detail}',
+            onTap: _loading == null ? () => _login(a) : null,
+            trailing: _loading == a.identifier
+                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: s.gold))
+                : Icon(Icons.login_rounded, color: s.gold),
           ),
-        Card(
-          margin: EdgeInsets.zero,
-          child: ListTile(
-            dense: true,
-            leading: CircleAvatar(backgroundColor: AppColors.warning.withValues(alpha: 0.12), child: const Icon(Icons.vpn_key_rounded, color: AppColors.warning)),
-            title: Text('Mère à activer — Clarisse OBIANG', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w700)),
-            subtitle: Text('Parcours d’activation P1 · code AFRAM-2026-ACTIVATE', style: AppTextStyles.bodySmall),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => context.push('${RoutePaths.activate}?code=AFRAM-2026-ACTIVATE'),
-          ),
+        tile(
+          icon: Icons.vpn_key_rounded,
+          color: AppColors.warning,
+          title: 'Mère à activer — Clarisse OBIANG',
+          subtitle: 'Parcours d’activation P1 · code AFRAM-2026-ACTIVATE',
+          onTap: () => context.push('${RoutePaths.activate}?code=AFRAM-2026-ACTIVATE'),
+          trailing: Icon(Icons.arrow_forward_ios_rounded, size: 14, color: s.textFaint),
+        ),
+        tile(
+          icon: Icons.dns_rounded,
+          color: const Color(0xFF22D3EE),
+          title: 'Serveur de l’API',
+          subtitle: FlavorConfig.instance.apiBaseUrl,
+          onTap: _changeServer,
+          trailing: Icon(Icons.edit_rounded, size: 18, color: s.textFaint),
         ),
       ]),
     );

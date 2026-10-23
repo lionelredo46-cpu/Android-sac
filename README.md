@@ -60,9 +60,17 @@ cd backend && npm run test:e2e       # 87 vérifications de bout en bout (API d�
 cd admin && npm run typecheck
 flutter analyze && flutter test      # unitaires + widgets
 flutter widget-preview start         # aperçus des composants (lib/**/timetable_previews.dart)
-# Parcours complet sur appareil (démo autonome, NFC simulé si l'appareil n'a pas de puce) :
-flutter drive --driver=test_driver/integration_test.dart --target=integration_test/timetable_flow_test.dart --profile --flavor demo
+# Parcours complet sur appareil (API de recette Railway, NFC simulé si l'appareil n'a pas de puce) :
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/timetable_flow_test.dart --profile --flavor staging
 ```
+
+## Design « Stratosphère »
+
+Thème sombre par défaut (variante claire « aube » dans Paramètres). Jetons de couleurs : `lib/core/theme/strato.dart` (`context.strato`) ; thème Material : `lib/core/theme/app_theme.dart`.
+
+- Ciel animé unique derrière toutes les pages (`StratoBackground`, monté dans `MaterialApp.builder`) : pages transparentes et transition « fondu traversant » (`StratoPageTransitionsBuilder`).
+- Surfaces : `GlassCard` (verre sans flou, liseré lumineux ; `gradient:` pour les cartes héroïques), `GlowIcon`, `SectionLabel`, `StratoTabBar`, dock flottant `StratoDock` (`main_shell.dart`).
+- Mouvement : `Reveal` (entrée en cascade), `CountUp` (chiffres), `OrbitGauge` (jauges), `ProgressBar` animée, `OrbitEmblem` (états vides/erreur). Toutes les animations continues s'arrêtent si l'utilisateur a réduit les animations (accessibilité) — les tests de widgets s'appuient dessus.
 
 ## Emploi du temps et NFC
 
@@ -97,7 +105,8 @@ Passerelles : `PAYMENT_DEFAULT_PROVIDER=CINETPAY|STRIPE` avec leurs clés ; push
 
 ## Déploiement
 
-- `docker-compose.prod.yml` : API, back-office, PostgreSQL, Redis, S3 derrière un reverse proxy TLS.
+- **Railway (recette)** : `bash backend/scripts/deploy-railway.sh` crée le projet, PostgreSQL, le service `api` construit depuis `backend/Dockerfile` (config `backend/railway.json`), un volume `/app/storage` et un domaine `*.up.railway.app`. L'APK de recette (`lib/main_staging.dart`) pointe vers ce domaine.
+- `docker-compose.prod.yml` : API, back-office, PostgreSQL, Redis, S3 derrière un reverse proxy TLS (VPS).
 - CI : `.github/workflows/ci.yml` (API + e2e sur PostgreSQL, back-office, Flutter).
 - Release : tag `vX.Y.Z` → `.github/workflows/release.yml` (AAB → Google Play test interne, IPA → TestFlight via Fastlane).
 

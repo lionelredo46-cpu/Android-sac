@@ -5,12 +5,13 @@ import 'package:printing/printing.dart';
 import 'package:uniparent/bootstrap.dart';
 import 'package:uniparent/core/config/flavor_config.dart';
 import 'package:uniparent/features/timetable/presentation/widgets/nfc_radar_sheet.dart';
+import 'package:uniparent/main_staging.dart' show stagingApiBaseUrl;
 import 'package:uniparent/features/timetable/presentation/widgets/timetable_slot_card.dart';
 
-/// Parcours complet sur appareil, en démo autonome (API simulée, aucune dépendance réseau) :
+/// Parcours complet sur appareil, connecté à l'API de recette (Railway, comptes de démonstration) :
 /// sélection de semaine → affichage des cours → détail → export PDF → déclenchement NFC.
 ///
-/// flutter test integration_test/timetable_flow_test.dart --flavor demo -d <appareil>
+/// flutter test integration_test/timetable_flow_test.dart --flavor staging -d <appareil>
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -42,8 +43,8 @@ void main() {
   }
 
   testWidgets('emploi du temps : semaine, cours, export PDF et NFC', (tester) async {
-    await bootstrap(flavor: Flavor.dev, appName: 'UniParent Démo', apiBaseUrl: 'http://uniparent.local', localBackend: true);
-    expect(FlavorConfig.instance.localBackend, isTrue);
+    await bootstrap(flavor: Flavor.staging, appName: 'UniParent Recette', apiBaseUrl: stagingApiBaseUrl);
+    expect(FlavorConfig.testTools, isTrue);
 
     // Premier lancement : introduction puis connexion par un compte de démonstration.
     await pumpUntil(tester, find.byWidgetPredicate((w) => w is Text && ['Commencer', 'Se connecter', 'Bonjour Jean-Marc'].any((t) => w.data?.startsWith(t) ?? false)));

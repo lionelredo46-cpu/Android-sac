@@ -30,7 +30,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
     setState(() => _loading = true);
     try {
       final dev = await ref.read(authRepositoryProvider).forgotPassword(_identifier.text);
-      if (dev != null && FlavorConfig.isDev && mounted) context.showSnack('Code (dev) : $dev');
+      if (dev != null && FlavorConfig.testTools && mounted) context.showSnack('Code (dev) : $dev');
       setState(() => _sent = true);
     } catch (e) {
       if (mounted) context.showError(e);

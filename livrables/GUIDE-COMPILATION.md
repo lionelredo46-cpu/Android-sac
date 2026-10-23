@@ -6,10 +6,10 @@ Ce dossier contient les installables prêts à l’emploi et explique comment le
 livrables/
 ├── GUIDE-COMPILATION.md          ← ce fichier
 ├── android/
-│   ├── UniParent-demo-1.0.0+1.apk   ← démo autonome : s’installe et fonctionne seule
-│   ├── UniParent-dev-1.0.0+1.apk    ← développement : utilise l’API du PC (réseau Wi-Fi)
-│   ├── UniParent-prod-1.0.0+1.apk   ← version production (serveur en ligne requis)
-│   ├── UniParent-prod-1.0.0+1.aab   ← à déposer sur Google Play
+│   ├── UniParent-recette-1.0.0+1-arm64-v8a.apk    ← recette : API en ligne sur Railway (à installer)
+│   ├── UniParent-recette-1.0.0+1-armeabi-v7a.apk  ← idem, pour les téléphones Android anciens (32 bits)
+│   ├── UniParent-prod-1.0.0+1-arm64-v8a.apk       ← version production (domaine aframgabon.com)
+│   ├── UniParent-prod-1.0.0+1.aab                 ← à déposer sur Google Play
 │   └── SHA256SUMS.txt               ← empreintes pour vérifier les fichiers
 └── ios/
     └── LISEZMOI.md                  ← l’IPA iOS se génère sur macOS (voir § 4)
@@ -21,8 +21,8 @@ livrables/
 
 | Fichier | Pour quoi faire | Serveur utilisé |
 |---|---|---|
-| `UniParent-demo-*.apk` | Présenter l’application sur n’importe quel téléphone Android, même sans Internet | Aucun : API simulée et base de données sur le téléphone |
-| `UniParent-dev-*.apk` | Tester avec le vrai serveur (back-office, données partagées) | L’API qui tourne sur ce PC (`http://<IP-du-PC>:3000`) |
+| `UniParent-recette-*-arm64-v8a.apk` | Présenter et tester l’application sur un téléphone Android (Internet requis) | L’API de recette hébergée sur Railway (`lib/main_staging.dart`) |
+| `UniParent-recette-*-armeabi-v7a.apk` | Idem, téléphones 32 bits (rares, antérieurs à 2017) | idem |
 | `UniParent-prod-*.apk` | Installation directe de la version finale | `https://api.uniparent.aframgabon.com` (à déployer) |
 | `UniParent-prod-*.aab` | Publication sur le Google Play Store | idem |
 | IPA iOS | iPhone / TestFlight / App Store | voir § 4 |
@@ -31,27 +31,38 @@ livrables/
 
 ---
 
-## 2. Installer l’APK de démonstration sur un téléphone Android
+## 1 bis. Mettre le back-end en ligne sur Railway (une fois)
 
-### 2.1 Démo autonome (recommandé)
+L’APK de recette parle directement à l’API hébergée sur Railway. Pour la déployer depuis ce PC (Git Bash, dans le dossier du projet) :
 
-1. Copiez `UniParent-demo-*.apk` sur le téléphone (câble USB, WhatsApp, Google Drive…), ou avec le câble : `adb install -r UniParent-demo-1.0.0+1.apk`.
+```bash
+npm install -g @railway/cli      # une seule fois
+railway login                    # ouvre le navigateur : se connecter puis « Authorize »
+bash backend/scripts/deploy-railway.sh
+SEED=1 bash backend/scripts/deploy-railway.sh --redeploy   # données de démonstration (après le 1er déploiement réussi)
+```
+
+Le script crée le projet `uniparent`, la base PostgreSQL, le service `api` construit avec `backend/Dockerfile`, un volume pour les pièces jointes, génère les secrets et affiche l’adresse publique (`https://….up.railway.app`). Vérifier dans le navigateur : `https://<adresse>/api/v1/health` → `{"status":"ok"}`.
+
+Ensuite, dans l’application de recette : écran de connexion → **Serveur de l’API** → coller l’adresse (aucune recompilation nécessaire). Pour la graver dans l’APK : remplacer `stagingApiBaseUrl` dans `lib/main_staging.dart` puis relancer `bash scripts/build-livrables.sh`.
+
+> Pendant un incident Railway (status.railway.com), les compilations des comptes gratuits/Hobby peuvent être suspendues : le déploiement reste en file d’attente et part tout seul à la reprise.
+
+---
+
+## 2. Installer l’application sur un téléphone Android
+
+L’application ne contient que l’interface : toutes les données viennent de l’API en ligne. Il n’y a plus de « démo autonome » embarquée, et chaque APK ne contient qu’une architecture de processeur : le fichier est plusieurs fois plus léger qu’avant.
+
+### 2.1 APK de recette (API sur Railway, recommandé)
+
+1. Copiez `UniParent-recette-*-arm64-v8a.apk` sur le téléphone (câble USB, WhatsApp, Google Drive…), ou avec le câble : `adb install -r UniParent-recette-1.0.0+1-arm64-v8a.apk`.
 2. Ouvrez le fichier et autorisez « Installer des applications inconnues » si Android le demande.
-3. Lancez **UniParent Démo**, passez l’introduction, puis touchez un compte dans **Comptes de démonstration**.
+3. Lancez **UniParent Recette**, passez l’introduction, puis touchez un compte dans **Comptes de démonstration**.
 
-Aucun serveur ni réseau n’est nécessaire : l’application embarque une base de données locale (hive) remplie au premier lancement avec les données de démonstration, recalées sur la semaine en cours. Les traitements du back-office sont simulés quelques secondes après chaque action :
+L’API de recette tourne sur Railway avec les données de démonstration (seed) et la passerelle de paiement **Sandbox** : l’écran d’attente propose « Simuler la validation ». Les codes SMS (activation, mot de passe oublié) ne sont pas envoyés : ils apparaissent dans les journaux du service sur Railway (*Deployments → View logs*, ligne `[SMS] →`).
 
-| Action dans l’application | Ce qui est simulé |
-|---|---|
-| Payer une facture (Mobile Money / carte) | Validation par l’opérateur après ~8 s : facture et échéances à jour, reçu PDF, notification au parent et à l’étudiant |
-| Écrire au service (messagerie) | Réponse du service concerné après ~15 s |
-| Demander un rendez-vous | Confirmation avec le lieu après ~20 s |
-| Justifier une absence, déposer une pièce | Validation par la scolarité après ~30 s |
-| Demander une attestation | Document PDF disponible après ~30 s |
-
-Pour revenir aux données d’origine : **Plus → Paramètres → Réinitialiser les données de démo**.
-
-Les données embarquées (`assets/demo/demo_db.json`) proviennent de l’API réelle. Pour les régénérer après une modification du seed : démarrer l’API (§ 2.2), `cd backend && npm run prisma:seed`, puis `node scripts/export-demo-db.mjs` et relancer le seed (l’export joue le parcours d’activation).
+Déployer ou mettre à jour l’API : `bash backend/scripts/deploy-railway.sh` (voir l’en-tête du script ; `--redeploy` pour une simple nouvelle version, `SEED=1` pour remettre les données de démonstration).
 
 ### 2.2 Version de développement (API du PC)
 
@@ -90,7 +101,7 @@ Installez `UniParent-dev-*.apk` comme ci-dessus et lancez **UniParent Dev** : le
 | Étudiante — Grâce OBIANG | dossier incomplet, autre filière |
 | Mère à activer — Clarisse OBIANG | parcours d’activation (code `AFRAM-2026-ACTIVATE`, le code SMS s’affiche à l’écran en démo) |
 
-Mot de passe de tous les comptes : `Afram2026!`. Pour remettre à zéro les données du serveur : `cd backend && npm run prisma:seed` (la démo autonome se réinitialise depuis ses Paramètres).
+Mot de passe de tous les comptes : `Afram2026!`. Pour remettre à zéro les données du serveur : `cd backend && npm run prisma:seed` (PC) ou `SEED=1 bash backend/scripts/deploy-railway.sh --redeploy` (Railway).
 
 ---
 
@@ -113,10 +124,10 @@ Depuis **Git Bash** :
 
 ```bash
 cd /e/ANDROID
-bash scripts/build-livrables.sh 192.168.1.152
+bash scripts/build-livrables.sh
 ```
 
-Le script génère le code, compile les 3 fichiers Android et les copie dans `livrables/android/` avec leurs empreintes SHA-256. Durée : 10 à 25 minutes selon la machine (le premier build est le plus long).
+Le script génère le code, compile les APK de recette et de production (un par architecture, `--split-per-abi`) et l’App Bundle, puis les copie dans `livrables/android/` avec leurs empreintes SHA-256. Durée : 10 à 25 minutes selon la machine (le premier build est le plus long).
 
 ### 3.3 Commandes à l’unité
 
@@ -125,11 +136,14 @@ flutter pub get
 dart run build_runner build          # modèles (freezed / json)
 flutter gen-l10n                     # traductions FR / EN
 
-# APK de démo pointant vers le PC (remplacer l'IP)
-flutter build apk --release --flavor dev -t lib/main_dev.dart --dart-define=API_BASE_URL=http://192.168.1.152:3000
+# APK de recette (API Railway) : un fichier par architecture, le plus léger possible
+flutter build apk --release --flavor staging -t lib/main_staging.dart --split-per-abi --obfuscate --split-debug-info=build/symbols/staging
+
+# APK pointant vers l'API du PC (remplacer l'IP)
+flutter build apk --release --flavor dev -t lib/main_dev.dart --split-per-abi --dart-define=API_BASE_URL=http://192.168.1.152:3000
 
 # APK et App Bundle de production (code obfusqué)
-flutter build apk       --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols/prod
+flutter build apk       --release --flavor prod -t lib/main_prod.dart --split-per-abi --obfuscate --split-debug-info=build/symbols/prod
 flutter build appbundle --release --flavor prod -t lib/main_prod.dart --obfuscate --split-debug-info=build/symbols/prod
 
 # Lancer directement sur l'émulateur ou un téléphone branché (développement)
@@ -141,7 +155,7 @@ Fichiers produits : `build/app/outputs/flutter-apk/` (APK) et `build/app/outputs
 | Flavor | Nom affiché | Identifiant | API |
 |---|---|---|---|
 | `dev` | UniParent Dev | `ga.afram.uniparent.dev` | PC local (HTTP autorisé) |
-| `staging` | UniParent Recette | `ga.afram.uniparent.staging` | `https://api-staging.uniparent.aframgabon.com` |
+| `staging` | UniParent Recette | `ga.afram.uniparent.staging` | API Railway (`stagingApiBaseUrl` dans `lib/main_staging.dart`) |
 | `prod` | UniParent AFRAM | `ga.afram.uniparent` | `https://api.uniparent.aframgabon.com` (HTTPS obligatoire) |
 
 Les trois versions peuvent être installées côte à côte sur le même téléphone.
@@ -212,7 +226,8 @@ Avant la mise en ligne : déployer l’API en HTTPS (`docker-compose.prod.yml`),
 
 | Symptôme | Solution |
 |---|---|
-| L’app de démo affiche « Connexion impossible » | PC et téléphone sur le même Wi-Fi ? API démarrée ? Port 3000 ouvert (§ 2.2) ? IP du PC inchangée ? |
+| L’app de recette affiche « Connexion impossible » | Téléphone connecté à Internet ? Service Railway démarré (`https://<domaine>/api/v1/health` doit répondre `{"status":"ok"}`) ? |
+| L’app de développement affiche « Connexion impossible » | PC et téléphone sur le même Wi-Fi ? API démarrée ? Port 3000 ouvert (§ 2.2) ? IP du PC inchangée ? |
 | `Kotlin… Could not close incremental caches` | Déjà corrigé (`kotlin.incremental=false` dans `android/gradle.properties`). |
 | `requires core library desugaring` | Déjà corrigé dans `android/app/build.gradle.kts`. |
 | Écran noir au lancement d’un APK release | R8 renommait les classes Kotlin appelées par JNI (`shared_preferences`, `path_provider`). Déjà corrigé dans `android/app/proguard-rules.pro` ; diagnostic : `adb logcat \| grep flutter`. |

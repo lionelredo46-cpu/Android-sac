@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/widgets/ui.dart';
 
@@ -46,11 +45,12 @@ class _OtpInputState extends State<OtpInput> {
 
   @override
   Widget build(BuildContext context) {
+    final s = context.strato;
     final base = PinTheme(
-      width: 50,
-      height: 56,
-      textStyle: AppTextStyles.h2,
-      decoration: BoxDecoration(border: Border.all(color: AppColors.borderLight), borderRadius: BorderRadius.circular(12)),
+      width: 48,
+      height: 58,
+      textStyle: AppTextStyles.h2.copyWith(color: s.text),
+      decoration: BoxDecoration(color: s.glass, border: Border.all(color: s.hairline), borderRadius: BorderRadius.circular(16)),
     );
     return Column(children: [
       Pinput(
@@ -58,20 +58,27 @@ class _OtpInputState extends State<OtpInput> {
         controller: widget.controller,
         autofocus: true,
         defaultPinTheme: base,
-        focusedPinTheme: base.copyDecorationWith(border: Border.all(color: AppColors.aframPrimary, width: 2)),
+        focusedPinTheme: base.copyDecorationWith(
+          border: Border.all(color: s.gold, width: 1.6),
+          boxShadow: [BoxShadow(color: s.gold.withValues(alpha: 0.30), blurRadius: 16)],
+        ),
+        submittedPinTheme: base.copyDecorationWith(color: s.gold.withValues(alpha: 0.10), border: Border.all(color: s.gold.withValues(alpha: 0.5))),
+        cursor: Container(width: 2, height: 22, color: s.gold),
         keyboardType: TextInputType.number,
         onCompleted: widget.onCompleted,
+        hapticFeedbackType: HapticFeedbackType.lightImpact,
       ),
       if (widget.onResend != null) ...[
         const SizedBox(height: 16),
-        TextButton(
+        TextButton.icon(
+          icon: Icon(_seconds > 0 ? Icons.timer_outlined : Icons.refresh_rounded, size: 18),
           onPressed: _seconds > 0
               ? null
               : () async {
                   await widget.onResend!();
                   _start();
                 },
-          child: Text(_seconds > 0 ? context.l10n.resendIn(_seconds) : context.l10n.resendCode),
+          label: Text(_seconds > 0 ? context.l10n.resendIn(_seconds) : context.l10n.resendCode),
         ),
       ],
     ]);

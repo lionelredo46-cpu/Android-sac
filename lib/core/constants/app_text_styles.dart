@@ -1,53 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
+/// Outfit (géométrique) pour les titres et les chiffres, Inter pour le texte courant.
+/// Polices embarquées (pubspec.yaml) : aucun téléchargement ni changement de police au démarrage.
 class AppTextStyles {
   AppTextStyles._();
 
-  static TextStyle get h1 => GoogleFonts.outfit(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        letterSpacing: -0.5,
-      );
+  static const outfit = 'Outfit';
+  static const inter = 'Inter';
 
-  static TextStyle get h2 => GoogleFonts.outfit(
-        fontSize: 22,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.3,
-      );
+  /// Grands chiffres (montants, moyennes, taux).
+  static const display = TextStyle(
+    fontFamily: outfit,
+    fontSize: 40,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -1.4,
+    height: 1.05,
+    fontFeatures: [FontFeature.tabularFigures()],
+  );
 
-  static TextStyle get h3 => GoogleFonts.outfit(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-      );
+  static const h1 = TextStyle(fontFamily: outfit, fontSize: 30, fontWeight: FontWeight.w700, letterSpacing: -0.8, height: 1.1);
 
-  static TextStyle get bodyLarge => GoogleFonts.inter(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        height: 1.5,
-      );
+  static const h2 = TextStyle(fontFamily: outfit, fontSize: 23, fontWeight: FontWeight.w700, letterSpacing: -0.4, height: 1.15);
 
-  static TextStyle get bodyMedium => GoogleFonts.inter(
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        height: 1.4,
-      );
+  static const h3 = TextStyle(fontFamily: outfit, fontSize: 17.5, fontWeight: FontWeight.w600, letterSpacing: -0.1, height: 1.2);
 
-  static TextStyle get bodySmall => GoogleFonts.inter(
-        fontSize: 12,
-        fontWeight: FontWeight.w400,
-      );
+  static const bodyLarge = TextStyle(fontFamily: inter, fontSize: 16, fontWeight: FontWeight.w400, height: 1.5);
 
-  static TextStyle get caption => GoogleFonts.inter(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-        color: AppColors.textMutedLight,
-      );
+  static const bodyMedium = TextStyle(fontFamily: inter, fontSize: 14, fontWeight: FontWeight.w400, height: 1.42);
 
-  static TextStyle get button => GoogleFonts.outfit(
-        fontSize: 15,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.2,
-      );
+  static const bodySmall = TextStyle(fontFamily: inter, fontSize: 12.5, fontWeight: FontWeight.w400, height: 1.38);
+
+  static const caption = TextStyle(fontFamily: inter, fontSize: 11.5, fontWeight: FontWeight.w500, color: AppColors.textMutedLight);
+
+  /// Sur-titre en capitales espacées (sections, libellés de chiffres).
+  static const overline = TextStyle(fontFamily: inter, fontSize: 10.5, fontWeight: FontWeight.w700, letterSpacing: 1.6, height: 1.2);
+
+  static const button = TextStyle(fontFamily: outfit, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.2);
 }

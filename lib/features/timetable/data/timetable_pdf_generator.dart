@@ -41,13 +41,13 @@ class TimetablePdfAssets {
 
   static Future<TimetablePdfAssets> load([AssetBundle? bundle]) async {
     final b = bundle ?? rootBundle;
-    Future<pw.Font> font(String file) async => pw.Font.ttf(await b.load('assets/google_fonts/$file'));
+    Future<pw.Font> font(String file) async => pw.Font.ttf(await b.load('assets/fonts/$file'));
     return TimetablePdfAssets(
       regular: await font('Inter-Regular.ttf'),
       semiBold: await font('Inter-SemiBold.ttf'),
       bold: await font('Inter-Bold.ttf'),
       display: await font('Outfit-Bold.ttf'),
-      logo: pw.MemoryImage((await b.load('Afram/assets/logo/logo-afram-officiel.png')).buffer.asUint8List()),
+      logo: pw.MemoryImage((await b.load('assets/brand/logo-afram.png')).buffer.asUint8List()),
     );
   }
 }

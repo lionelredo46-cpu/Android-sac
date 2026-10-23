@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/utils/formatters.dart';
@@ -47,25 +46,36 @@ class PaymentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return Card(
+    final s = context.strato;
+    final color = p.enLigne ? s.info : s.gold;
+    return GlassCard(
       margin: const EdgeInsets.only(bottom: 10),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-        leading: CircleAvatar(
-          backgroundColor: (p.enLigne ? AppColors.info : AppColors.aframGold).withValues(alpha: 0.15),
-          child: Icon(channelIcon(p.canal), color: p.enLigne ? AppColors.info : AppColors.aframGold),
+      padding: const EdgeInsets.fromLTRB(14, 14, 8, 14),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        GlowIcon(channelIcon(p.canal), color: color, size: 44),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('+ ${Fmt.money(p.montant, p.devise)}', style: AppTextStyles.h3.copyWith(color: s.success, fontSize: 17)),
+            const SizedBox(height: 3),
+            Text(Fmt.dateTime(p.date), style: AppTextStyles.bodySmall.copyWith(color: s.text)),
+            Text(
+              '${channelLabel(p.canal)} · ${p.enLigne ? l.online : l.counter}${p.auteur != null ? '\n${l.paidBy(p.auteur!)}' : ''}',
+              style: AppTextStyles.bodySmall.copyWith(color: s.textMuted),
+            ),
+          ]),
         ),
-        title: Text(Fmt.money(p.montant, p.devise), style: AppTextStyles.h3.copyWith(color: AppColors.success)),
-        subtitle: Text(
-          '${Fmt.dateTime(p.date)}\n${channelLabel(p.canal)} · ${p.enLigne ? l.online : l.counter}'
-          '${p.auteur != null ? '\n${l.paidBy(p.auteur!)}' : ''}',
-          style: AppTextStyles.bodySmall,
-        ),
-        isThreeLine: true,
-        trailing: p.receipt != null
-            ? IconButton(tooltip: l.viewReceipt, icon: const Icon(Icons.receipt_long_rounded, color: AppColors.aframPrimary), onPressed: onReceipt)
-            : null,
-      ),
+        if (p.receipt != null)
+          IconButton(
+            tooltip: l.viewReceipt,
+            onPressed: onReceipt,
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: s.gold.withValues(alpha: 0.12), border: Border.all(color: s.gold.withValues(alpha: 0.35))),
+              child: Icon(Icons.receipt_long_rounded, color: s.gold, size: 20),
+            ),
+          ),
+      ]),
     );
   }
 }

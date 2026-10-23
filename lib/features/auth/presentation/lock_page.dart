@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/security/app_lock.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/pulsing_indicator.dart';
 import '../../../core/widgets/ui.dart';
 import '../application/session_controller.dart';
 
@@ -30,28 +31,49 @@ class _LockPageState extends ConsumerState<LockPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final s = context.strato;
     final user = ref.watch(sessionProvider).value;
     return Scaffold(
-      backgroundColor: AppColors.aframPrimary,
       body: SafeArea(
         child: Center(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const Icon(Icons.fingerprint_rounded, size: 96, color: Colors.white),
-            const SizedBox(height: 24),
-            Text(l.hello(user?.firstName ?? ''), style: AppTextStyles.h2.copyWith(color: Colors.white)),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.aframGold, minimumSize: const Size(260, 52)),
-              onPressed: _unlock,
-              icon: const Icon(Icons.lock_open_rounded),
-              label: Text(l.biometricUnlock),
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () => ref.read(sessionProvider.notifier).logout(),
-              child: Text(l.logout, style: const TextStyle(color: Colors.white70)),
-            ),
-          ]),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Reveal(
+                offset: 0,
+                child: SizedBox.square(
+                  dimension: 190,
+                  child: Stack(alignment: Alignment.center, children: [
+                    PulsingIndicator(color: s.gold.withValues(alpha: 0.6), size: 64, rings: 3, period: const Duration(milliseconds: 2600)),
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: Strato.goldGradient,
+                        boxShadow: [BoxShadow(color: s.gold.withValues(alpha: 0.5), blurRadius: 40)],
+                      ),
+                      child: Icon(Icons.fingerprint_rounded, size: 56, color: s.onGold),
+                    ),
+                  ]),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Reveal(index: 1, child: Text(l.hello(user?.firstName ?? ''), style: AppTextStyles.h1.copyWith(color: s.text), textAlign: TextAlign.center)),
+              const SizedBox(height: 8),
+              Reveal(index: 2, child: Text(l.biometricReason, style: AppTextStyles.bodyMedium.copyWith(color: s.textMuted), textAlign: TextAlign.center)),
+              const SizedBox(height: 36),
+              Reveal(index: 3, child: AppButton(text: l.biometricUnlock, icon: Icons.lock_open_rounded, onPressed: _unlock)),
+              const SizedBox(height: 10),
+              Reveal(
+                index: 4,
+                child: TextButton(
+                  onPressed: () => ref.read(sessionProvider.notifier).logout(),
+                  child: Text(l.logout, style: TextStyle(color: s.textMuted)),
+                ),
+              ),
+            ]),
+          ),
         ),
       ),
     );

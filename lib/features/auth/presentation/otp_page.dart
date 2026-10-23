@@ -38,7 +38,7 @@ class _OtpPageState extends ConsumerState<OtpPage> {
   Future<void> _resend() async {
     try {
       final dev = await ref.read(authRepositoryProvider).sendOtp(widget.phone);
-      if (dev != null && FlavorConfig.isDev && mounted) context.showSnack('Code (dev) : $dev');
+      if (dev != null && FlavorConfig.testTools && mounted) context.showSnack('Code (dev) : $dev');
     } catch (e) {
       if (mounted) context.showError(e);
     }

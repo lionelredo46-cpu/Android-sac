@@ -34,7 +34,7 @@ class _ActivationPageState extends ConsumerState<ActivationPage> {
     setState(() => _loading = true);
     try {
       final s = await ref.read(authRepositoryProvider).startActivation(_code.text);
-      if (s.devCode != null && FlavorConfig.isDev && mounted) context.showSnack('Code (dev) : ${s.devCode}');
+      if (s.devCode != null && FlavorConfig.testTools && mounted) context.showSnack('Code (dev) : ${s.devCode}');
       setState(() => _started = s);
     } catch (e) {
       if (mounted) context.showError(e);

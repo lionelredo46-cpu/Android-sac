@@ -46,13 +46,6 @@ android {
             versionNameSuffix = "-dev"
             resValue("string", "app_name", "UniParent Dev")
         }
-        // Démo autonome (lib/main_demo.dart) : API simulée et base de données sur le téléphone.
-        create("demo") {
-            dimension = "env"
-            applicationIdSuffix = ".demo"
-            versionNameSuffix = "-demo"
-            resValue("string", "app_name", "UniParent Démo")
-        }
         create("staging") {
             dimension = "env"
             applicationIdSuffix = ".staging"
@@ -73,6 +66,14 @@ android {
                 keyAlias = keystoreProperties["keyAlias"] as String
                 keyPassword = keystoreProperties["keyPassword"] as String
             }
+        }
+    }
+
+    // Bibliothèques natives compressées dans l'APK : téléchargement ~2× plus léger
+    // (elles sont décompressées une fois à l'installation).
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
         }
     }
 
