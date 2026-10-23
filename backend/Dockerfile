@@ -6,6 +6,10 @@ RUN apk add --no-cache openssl
 COPY package*.json ./
 RUN npm ci
 COPY . .
+# `prisma generate` vérifie seulement que le schéma est valide (il ne se connecte pas) : une URL
+# factice suffit pendant la construction. Railway (et tout hébergeur) ne transmet les variables
+# réelles du service qu'au démarrage du conteneur, jamais à `docker build`.
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate && npm run build && npm prune --omit=dev
 
 FROM node:22-alpine
