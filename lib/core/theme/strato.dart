@@ -77,28 +77,30 @@ class Strato extends ThemeExtension<Strato> {
   Color get danger => AppColors.error;
   Color get info => AppColors.info;
 
+  // Bleu AFRAM assumé, pas un noir habillé de bleu : le ciel reste lisiblement bleu du haut
+  // en bas, la touche or sert d'accent (CTA, horizon), jamais de couleur de fond.
   static const night = Strato(
     brightness: Brightness.dark,
-    base: Color(0xFF050916),
-    elevated: Color(0xFF0D1733),
-    sky: [Color(0xFF03050D), Color(0xFF060D24), Color(0xFF0A1740)],
-    aurora: [Color(0xFF2F6BFF), Color(0xFF7B4DFF), Color(0xFF12B5DE), Color(0xFFE5A93C)],
-    auroraStrength: 0.30,
+    base: Color(0xFF0B2A5E),
+    elevated: Color(0xFF15397D),
+    sky: [Color(0xFF1C4B8F), Color(0xFF123472), Color(0xFF0B2A5E)],
+    aurora: [Color(0xFF3B82F6), Color(0xFF1E5BB0), Color(0xFF22D3EE), Color(0xFFE5A93C)],
+    auroraStrength: 0.42,
     stars: true,
     horizon: Color(0xFFE5A93C),
-    glass: Color(0x12FFFFFF),
-    glassStrong: Color(0x1FFFFFFF),
-    hairline: Color(0x1CFFFFFF),
-    hairlineStrong: Color(0x3DFFFFFF),
-    sheen: Color(0x40FFFFFF),
-    text: Color(0xFFF2F5FF),
-    textMuted: Color(0xFFA6B1CF),
-    textFaint: Color(0xFF6E7A9C),
-    accent: Color(0xFF7AA8FF),
-    accentDeep: Color(0xFF3A6DF0),
+    glass: Color(0x1AFFFFFF),
+    glassStrong: Color(0x2BFFFFFF),
+    hairline: Color(0x26FFFFFF),
+    hairlineStrong: Color(0x47FFFFFF),
+    sheen: Color(0x4DFFFFFF),
+    text: Color(0xFFF5F8FF),
+    textMuted: Color(0xFFBDCBEF),
+    textFaint: Color(0xFF8CA0D6),
+    accent: Color(0xFF3B82F6),
+    accentDeep: Color(0xFF1E5BB0),
     gold: Color(0xFFF2C063),
     onGold: Color(0xFF1C1405),
-    shadow: Color(0x66000000),
+    shadow: Color(0x59001233),
   );
 
   static const dawn = Strato(
@@ -132,25 +134,25 @@ class Strato extends ThemeExtension<Strato> {
     colors: [Color(0xFFFBE0A4), Color(0xFFEDB451), Color(0xFFD68F22)],
   );
 
-  /// Saphir → indigo : surfaces héroïques, bulles envoyées.
+  /// Bleu AFRAM vif → profond : surfaces héroïques, bulles envoyées.
   static const sapphireGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF3E7BFF), Color(0xFF5B4BF0)],
+    colors: [Color(0xFF3B82F6), Color(0xFF1E5BB0)],
   );
 
-  /// Carte héroïque (montant dû, moyenne) : nuit bleue traversée d'une aurore.
+  /// Carte héroïque (montant dû, moyenne) : le bleu AFRAM en pleine lumière, jamais vers le noir.
   LinearGradient get heroGradient => isDark
       ? const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF1C3C9A), Color(0xFF2A1F78), Color(0xFF0D1844)],
+          colors: [Color(0xFF3B82F6), Color(0xFF1E5BB0), Color(0xFF0B2A5E)],
           stops: [0, 0.55, 1],
         )
       : const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0A3871), Color(0xFF1E5BB0), Color(0xFF4B49C8)],
+          colors: [Color(0xFF0A3871), Color(0xFF1E5BB0), Color(0xFF3B82F6)],
           stops: [0, 0.6, 1],
         );
 

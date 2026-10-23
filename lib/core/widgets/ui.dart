@@ -300,7 +300,7 @@ class Avatar extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: s.isDark ? const [Color(0xFF1B2C63), Color(0xFF0E1638)] : const [Color(0xFFFFFFFF), Color(0xFFE9EEFC)],
+              colors: s.isDark ? const [Color(0xFF1E4488), Color(0xFF0F2E68)] : const [Color(0xFFFFFFFF), Color(0xFFE9EEFC)],
             ),
           ),
           child: Text(initials, style: AppTextStyles.h3.copyWith(color: s.gold, fontSize: radius * 0.72, fontWeight: FontWeight.w700, letterSpacing: 0.5)),

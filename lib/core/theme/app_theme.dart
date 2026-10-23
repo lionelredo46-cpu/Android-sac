@@ -34,7 +34,7 @@ class AppTheme {
     final scheme = ColorScheme(
       brightness: s.brightness,
       primary: s.accent,
-      onPrimary: dark ? const Color(0xFF06102A) : Colors.white,
+      onPrimary: Colors.white,
       primaryContainer: s.accent.withValues(alpha: 0.18),
       onPrimaryContainer: s.text,
       secondary: s.gold,
@@ -271,7 +271,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: dark ? const Color(0xFF16224A) : const Color(0xFF0B1533),
+        backgroundColor: dark ? const Color(0xFF123472) : const Color(0xFF0B1533),
         contentTextStyle: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
         actionTextColor: s.gold,
         elevation: 0,
@@ -327,7 +327,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
       tooltipTheme: TooltipThemeData(
-        decoration: BoxDecoration(color: dark ? const Color(0xFF1A2752) : const Color(0xFF0B1533), borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: dark ? const Color(0xFF15397D) : const Color(0xFF0B1533), borderRadius: BorderRadius.circular(10)),
         textStyle: AppTextStyles.bodySmall.copyWith(color: Colors.white),
       ),
       datePickerTheme: DatePickerThemeData(

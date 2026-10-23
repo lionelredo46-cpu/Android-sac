@@ -142,7 +142,7 @@ class _ConversationPageState extends ConsumerState<ConversationPage> {
                     Container(
                       padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                       decoration: BoxDecoration(
-                        color: s.isDark ? const Color(0xE60B1532) : const Color(0xF2FFFFFF),
+                        color: s.isDark ? const Color(0xE6102F66) : const Color(0xF2FFFFFF),
                         borderRadius: BorderRadius.circular(26),
                         border: Border.all(color: s.hairlineStrong),
                         boxShadow: [BoxShadow(color: s.shadow, blurRadius: 20, offset: const Offset(0, 6))],

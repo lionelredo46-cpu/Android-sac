@@ -233,7 +233,7 @@ extension on _PlanetState {
               height: 40,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: s.isDark ? const Color(0xFF13214A) : Colors.white,
+                color: s.isDark ? const Color(0xFF1A3B7D) : Colors.white,
                 border: Border.all(color: color.withValues(alpha: 0.6)),
                 boxShadow: [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 16)],
               ),
