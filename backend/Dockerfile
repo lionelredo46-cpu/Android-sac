@@ -3,13 +3,15 @@ FROM node:22-alpine AS build
 WORKDIR /app
 # openssl dans les deux étapes : Prisma choisit son moteur selon la version détectée.
 RUN apk add --no-cache openssl
+# `@prisma/client` lance lui-même `prisma generate` dans son script postinstall, dès `npm ci` :
+# la variable doit donc être présente avant l'installation, pas seulement avant notre propre
+# appel explicite. Valeur factice : cette étape vérifie le schéma, elle ne se connecte jamais à
+# une vraie base. Railway (et tout hébergeur) ne transmet les variables réelles du service qu'au
+# démarrage du conteneur, jamais à `docker build`.
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 COPY package*.json ./
 RUN npm ci
 COPY . .
-# `prisma generate` vérifie seulement que le schéma est valide (il ne se connecte pas) : une URL
-# factice suffit pendant la construction. Railway (et tout hébergeur) ne transmet les variables
-# réelles du service qu'au démarrage du conteneur, jamais à `docker build`.
-ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate && npm run build && npm prune --omit=dev
 
 FROM node:22-alpine
