@@ -129,7 +129,7 @@ class StratoDock extends StatelessWidget {
           height: 70,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(28),
-            color: s.isDark ? const Color(0xFC0A1430) : const Color(0xFCFFFFFF),
+            color: s.isDark ? Color.alphaBlend(s.elevated.withValues(alpha: 0.96), s.base) : const Color(0xFCFFFFFF),
             border: Border.all(color: s.hairlineStrong),
             boxShadow: [
               BoxShadow(color: s.isDark ? Colors.black.withValues(alpha: 0.5) : s.shadow, blurRadius: 30, offset: const Offset(0, 12)),
