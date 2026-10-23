@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -6,10 +8,19 @@ import '../constants/app_text_styles.dart';
 import '../errors/error_handler.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../storage/cache_store.dart';
+import '../theme/app_animations.dart';
+import '../theme/strato.dart';
 import '../utils/formatters.dart';
 import 'empty_state_view.dart';
 import 'error_state_view.dart';
+import 'glass_card.dart';
 import 'loading_skeleton.dart';
+
+export '../theme/strato.dart';
+export 'glass_card.dart';
+export 'orbit_gauge.dart';
+export 'reveal.dart';
+export 'strato_tabs.dart';
 
 extension L10nX on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this)!;
@@ -17,16 +28,27 @@ extension L10nX on BuildContext {
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
 
   void showSnack(String message, {bool error = false}) {
+    final s = strato;
     ScaffoldMessenger.of(this)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(
-        content: Text(message),
-        backgroundColor: error ? AppColors.error : null,
+        content: Row(children: [
+          Icon(error ? Icons.error_rounded : Icons.check_circle_rounded, color: error ? const Color(0xFFFFA4A4) : s.gold, size: 20),
+          const SizedBox(width: 12),
+          Expanded(child: Text(message)),
+        ]),
+        backgroundColor: error ? const Color(0xFF5B1A24) : null,
         behavior: SnackBarBehavior.floating,
       ));
   }
 
   void showError(Object e) => showSnack(ErrorHandler.message(e), error: true);
+
+  /// Marge basse d'une liste : barre système (affichage bord à bord) et dock flottant compris.
+  double get bottomInset => MediaQuery.paddingOf(this).bottom;
+
+  /// Hauteur du dock flottant seule (sans la barre système) : à ajouter sous un bouton flottant d'onglet.
+  double get dockInset => (MediaQuery.paddingOf(this).bottom - MediaQuery.viewPaddingOf(this).bottom).clamp(0.0, double.infinity);
 }
 
 /// Couleurs sémantiques (cahier des charges §11) :
@@ -47,6 +69,7 @@ class StatusStyle {
       };
 }
 
+/// Pastille de statut : point lumineux, teinte translucide et liseré.
 class StatusChip extends StatelessWidget {
   final String label;
   final Color color;
@@ -60,20 +83,39 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dark = context.strato.isDark;
     return Semantics(
       label: label,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(20)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          if (icon != null) ...[Icon(icon, size: 14, color: color), const SizedBox(width: 4)],
-          Flexible(child: Text(label, style: AppTextStyles.caption.copyWith(color: color, fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis)),
-        ]),
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(8, 4, 10, 4),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: dark ? 0.14 : 0.10),
+            borderRadius: BorderRadius.circular(99),
+            border: Border.all(color: color.withValues(alpha: dark ? 0.40 : 0.30)),
+          ),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: [BoxShadow(color: color.withValues(alpha: 0.8), blurRadius: 6)]),
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyles.caption.copyWith(color: dark ? Color.lerp(color, Colors.white, 0.25) : Color.lerp(color, Colors.black, 0.2), fontWeight: FontWeight.w700, letterSpacing: 0.2),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ]),
+        ),
       ),
     );
   }
 }
 
+/// Carte de section : pastille d'icône lumineuse, titre et contenu, en verre.
 class SectionCard extends StatelessWidget {
   final String title;
   final IconData icon;
@@ -85,30 +127,22 @@ class SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = iconColor ?? context.colors.primary;
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                child: Icon(icon, color: color, size: 20),
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Text(title, style: AppTextStyles.h3)),
-              if (trailing != null) trailing!,
-              if (onTap != null && trailing == null) Icon(Icons.chevron_right_rounded, color: context.colors.outline),
-            ]),
-            const SizedBox(height: 14),
-            child,
-          ]),
-        ),
-      ),
+    final s = context.strato;
+    final color = iconColor ?? s.accent;
+    return GlassCard(
+      onTap: onTap,
+      semanticLabel: onTap == null ? null : title,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          GlowIcon(icon, color: color, size: 38, radius: 12),
+          const SizedBox(width: 12),
+          Expanded(child: Text(title, style: AppTextStyles.h3.copyWith(color: s.text))),
+          if (trailing != null) trailing!,
+          if (onTap != null && trailing == null) Icon(Icons.arrow_forward_ios_rounded, size: 14, color: s.textFaint),
+        ]),
+        const SizedBox(height: 16),
+        child,
+      ]),
     );
   }
 }
@@ -121,18 +155,21 @@ class KeyValueRow extends StatelessWidget {
   const KeyValueRow(this.label, this.value, {super.key, this.valueColor, this.bold = false});
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(children: [
-          Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: context.isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight))),
-          const SizedBox(width: 12),
-          Flexible(
-            child: Text(value,
-                textAlign: TextAlign.end,
-                style: AppTextStyles.bodyMedium.copyWith(fontWeight: bold ? FontWeight.w700 : FontWeight.w600, color: valueColor)),
-          ),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final s = context.strato;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(children: [
+        Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: s.textMuted))),
+        const SizedBox(width: 12),
+        Flexible(
+          child: Text(value,
+              textAlign: TextAlign.end,
+              style: (bold ? AppTextStyles.h3.copyWith(fontSize: 16) : AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)).copyWith(color: valueColor ?? s.text)),
+        ),
+      ]),
+    );
+  }
 }
 
 /// Bandeau « données hors ligne » quand une ressource vient du cache.
@@ -141,16 +178,23 @@ class StaleBanner extends StatelessWidget {
   const StaleBanner(this.updatedAt, {super.key});
 
   @override
-  Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(color: AppColors.offlineBanner.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-        child: Row(children: [
-          const Icon(Icons.cloud_off_rounded, size: 16, color: AppColors.offlineBanner),
-          const SizedBox(width: 8),
-          Expanded(child: Text(context.l10n.offlineBanner(Fmt.dateTime(updatedAt)), style: AppTextStyles.bodySmall.copyWith(color: AppColors.offlineBanner))),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    const c = AppColors.offlineBanner;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: c.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: c.withValues(alpha: 0.35)),
+      ),
+      child: Row(children: [
+        const Icon(Icons.cloud_off_rounded, size: 17, color: Color(0xFFF7B955)),
+        const SizedBox(width: 10),
+        Expanded(child: Text(context.l10n.offlineBanner(Fmt.dateTime(updatedAt)), style: AppTextStyles.bodySmall.copyWith(color: const Color(0xFFF7B955), fontWeight: FontWeight.w600))),
+      ]),
+    );
+  }
 }
 
 class SkeletonList extends StatelessWidget {
@@ -164,7 +208,7 @@ class SkeletonList extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         itemCount: count,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (_, __) => LoadingSkeleton(width: double.infinity, height: height, borderRadius: 16),
+        itemBuilder: (_, i) => LoadingSkeleton(width: double.infinity, height: i == 0 ? height * 1.5 : height, borderRadius: 24),
       );
 }
 
@@ -194,14 +238,18 @@ class CachedAsyncView<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return value.when(
+    final content = value.when(
       skipLoadingOnRefresh: true,
       skipLoadingOnReload: true,
-      loading: () => loading ?? const SkeletonList(),
-      error: (e, _) => ErrorStateView(title: context.l10n.errorTitle, message: ErrorHandler.message(e), onRetry: onRetry),
+      loading: () => KeyedSubtree(key: const ValueKey('loading'), child: loading ?? const SkeletonList()),
+      error: (e, _) => KeyedSubtree(
+        key: const ValueKey('error'),
+        child: ErrorStateView(title: context.l10n.errorTitle, message: ErrorHandler.message(e), onRetry: onRetry),
+      ),
       data: (cached) {
         if (isEmpty?.call(cached.data) ?? false) {
           return RefreshIndicator(
+            key: const ValueKey('empty'),
             onRefresh: () async => onRetry(),
             child: ListView(children: [
               const SizedBox(height: 60),
@@ -210,42 +258,130 @@ class CachedAsyncView<T> extends StatelessWidget {
           );
         }
         final child = builder(context, cached.data);
-        if (!cached.fromCache) return child;
-        return Column(children: [
+        if (!cached.fromCache) return KeyedSubtree(key: const ValueKey('data'), child: child);
+        return Column(key: const ValueKey('stale'), children: [
           Padding(padding: const EdgeInsets.fromLTRB(16, 8, 16, 0), child: StaleBanner(cached.updatedAt)),
           Expanded(child: child),
         ]);
       },
     );
+    return AnimatedSwitcher(
+      duration: AppMotion.medium,
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (current, previous) => Stack(fit: StackFit.expand, children: [...previous, if (current != null) current]),
+      child: content,
+    );
   }
 }
 
+/// Avatar à initiales cerclé d'un anneau or → saphir ; [spin] fait tourner l'anneau.
 class Avatar extends StatelessWidget {
   final String initials;
   final double radius;
-  const Avatar(this.initials, {super.key, this.radius = 22});
+  final bool spin;
+  const Avatar(this.initials, {super.key, this.radius = 22, this.spin = false});
 
   @override
-  Widget build(BuildContext context) => CircleAvatar(
-        radius: radius,
-        backgroundColor: AppColors.aframGold.withValues(alpha: 0.25),
-        child: Text(initials, style: AppTextStyles.h3.copyWith(color: AppColors.aframPrimary, fontSize: radius * 0.75)),
+  Widget build(BuildContext context) {
+    final s = context.strato;
+    final size = radius * 2;
+    final ring = spin && !AppMotion.reduced(context) ? const _SpinningRing() : const _Ring(0);
+    return SizedBox.square(
+      dimension: size,
+      child: Stack(alignment: Alignment.center, children: [
+        Positioned.fill(child: ring),
+        Container(
+          width: size - 5,
+          height: size - 5,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: s.isDark ? const [Color(0xFF1B2C63), Color(0xFF0E1638)] : const [Color(0xFFFFFFFF), Color(0xFFE9EEFC)],
+            ),
+          ),
+          child: Text(initials, style: AppTextStyles.h3.copyWith(color: s.gold, fontSize: radius * 0.72, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        ),
+      ]),
+    );
+  }
+}
+
+class _Ring extends StatelessWidget {
+  final double turn;
+  const _Ring(this.turn);
+
+  @override
+  Widget build(BuildContext context) => DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: SweepGradient(
+            colors: const [Color(0xFFFBE0A4), Color(0xFFE5A93C), Color(0xFF5B8CFF), Color(0xFF8B7BFF), Color(0xFFFBE0A4)],
+            transform: GradientRotation(turn * 2 * math.pi),
+          ),
+        ),
       );
 }
 
+class _SpinningRing extends StatefulWidget {
+  const _SpinningRing();
+
+  @override
+  State<_SpinningRing> createState() => _SpinningRingState();
+}
+
+class _SpinningRingState extends State<_SpinningRing> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(vsync: this, duration: const Duration(seconds: 6))..repeat();
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  // Rotation pure (aucune reconstruction) : seul le compositeur travaille.
+  Widget build(BuildContext context) => RepaintBoundary(child: RotationTransition(turns: _c, child: const _Ring(0)));
+}
+
+/// Barre de progression lumineuse : remplissage dégradé animé et tête brillante.
 class ProgressBar extends StatelessWidget {
   final double value;
   final Color color;
-  const ProgressBar(this.value, {super.key, this.color = AppColors.success});
+  final double height;
+  const ProgressBar(this.value, {super.key, this.color = AppColors.success, this.height = 8});
 
   @override
-  Widget build(BuildContext context) => ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: LinearProgressIndicator(
-          value: value.clamp(0, 1),
-          minHeight: 8,
-          color: color,
-          backgroundColor: color.withValues(alpha: 0.15),
-        ),
-      );
+  Widget build(BuildContext context) {
+    final s = context.strato;
+    final target = value.isNaN ? 0.0 : value.clamp(0.0, 1.0);
+    Widget bar(double v) => LayoutBuilder(
+          builder: (_, c) => Stack(children: [
+            Container(height: height, decoration: BoxDecoration(color: s.hairline, borderRadius: BorderRadius.circular(height))),
+            Container(
+              height: height,
+              width: c.maxWidth * v,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(height),
+                gradient: LinearGradient(colors: [color.withValues(alpha: 0.65), color, Color.lerp(color, Colors.white, 0.3)!]),
+                boxShadow: s.isDark && v > 0 ? [BoxShadow(color: color.withValues(alpha: 0.55), blurRadius: 10, spreadRadius: -2)] : null,
+              ),
+            ),
+          ]),
+        );
+    return Semantics(
+      value: '${(target * 100).round()} %',
+      child: AppMotion.reduced(context)
+          ? bar(target)
+          : TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0, end: target),
+              duration: const Duration(milliseconds: 1200),
+              curve: Curves.easeOutCubic,
+              builder: (_, v, __) => bar(v),
+            ),
+    );
+  }
 }

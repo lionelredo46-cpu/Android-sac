@@ -33,7 +33,6 @@ dependencies:
   intl: any
 
   # Design & UI Material 3
-  google_fonts: ^6.2.1
   flutter_svg: ^2.0.10+1
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
@@ -89,8 +88,32 @@ flutter:
   generate: true
 
   assets:
-    - Afram/assets/logo/
-    - Afram/assets/photos/
-    - assets/demo/
-    # Polices embarquées (scripts/bundle-fonts.mjs) : google_fonts les utilise sans téléchargement.
-    - assets/google_fonts/
+    - assets/brand/
+    # Licences des polices (affichées dans « Licences »).
+    - assets/fonts/Inter-OFL.txt
+    - assets/fonts/Outfit-OFL.txt
+
+  # Polices embarquées : chargées par le moteur au démarrage, sans téléchargement.
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-ExtraBold.ttf
+          weight: 800
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/Outfit-Regular.ttf
+        - asset: assets/fonts/Outfit-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Outfit-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Outfit-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Outfit-ExtraBold.ttf
+          weight: 800

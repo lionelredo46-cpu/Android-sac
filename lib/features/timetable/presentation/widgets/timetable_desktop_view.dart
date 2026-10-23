@@ -44,7 +44,7 @@ class TimetableDesktopView extends StatelessWidget {
     final selected = data.slots?.where((s) => s.id == data.state.selectedSlotId).firstOrNull;
     final open = data.state.panelOpen;
     return DecoratedBox(
-      decoration: const BoxDecoration(gradient: ObsidianColors.background),
+      decoration: ObsidianColors.backdrop(context),
       child: SafeArea(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,

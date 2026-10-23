@@ -71,7 +71,7 @@ class StoryCard extends StatelessWidget {
                           height: 30,
                           padding: const EdgeInsets.all(3),
                           decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                          child: ClipOval(child: Image.asset('Afram/assets/logo/logo-afram-150x150.png', fit: BoxFit.contain)),
+                          child: ClipOval(child: Image.asset('assets/brand/logo-afram-150.png', fit: BoxFit.contain)),
                         ),
                         const SizedBox(width: 8),
                         Text('AFRAM · UniParent', style: ObsidianText.label(size: 11, color: ObsidianColors.goldLight)),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../constants/app_colors.dart';
+import 'strato.dart';
 
 /// Nuancier « Obsidian Sapphire & Imperial Gold » (emploi du temps immersif).
 class ObsidianColors {
@@ -41,6 +41,12 @@ class ObsidianColors {
     Color(0xFF22D3EE),
   ];
 
+  /// En thème sombre, le ciel « Stratosphère » commun reste visible derrière le module ;
+  /// en thème clair, le module garde son fond obsidienne opaque.
+  static bool sharesSky(BuildContext context) => Theme.of(context).extension<Strato>()?.isDark ?? true;
+  static Color scaffold(BuildContext context) => sharesSky(context) ? Colors.transparent : abyss;
+  static BoxDecoration backdrop(BuildContext context) => BoxDecoration(gradient: sharesSky(context) ? null : background);
+
   static Color forCourse(String code) => coursePalette[code.codeUnits.fold<int>(7, (h, c) => (h * 31 + c) & 0x7fffffff) % coursePalette.length];
 
   /// Couleur sémantique d'un créneau : annulé (rubis), reporté (ambre), sinon la matière.
@@ -56,13 +62,13 @@ class ObsidianText {
   ObsidianText._();
 
   static TextStyle display({double size = 28, Color color = ObsidianColors.text}) =>
-      GoogleFonts.outfit(fontSize: size, fontWeight: FontWeight.w700, color: color, height: 1.15, letterSpacing: -0.4);
-  static TextStyle title({double size = 17, Color color = ObsidianColors.text}) => GoogleFonts.outfit(fontSize: size, fontWeight: FontWeight.w600, color: color, height: 1.2);
+      TextStyle(fontFamily: 'Outfit', fontSize: size, fontWeight: FontWeight.w700, color: color, height: 1.15, letterSpacing: -0.4);
+  static TextStyle title({double size = 17, Color color = ObsidianColors.text}) => TextStyle(fontFamily: 'Outfit', fontSize: size, fontWeight: FontWeight.w600, color: color, height: 1.2);
   static TextStyle time({double size = 13, Color color = ObsidianColors.text}) =>
-      GoogleFonts.outfit(fontSize: size, fontWeight: FontWeight.w600, color: color, fontFeatures: const [FontFeature.tabularFigures()]);
-  static TextStyle body({double size = 14, Color color = ObsidianColors.textMuted}) => GoogleFonts.inter(fontSize: size, fontWeight: FontWeight.w400, color: color, height: 1.35);
+      TextStyle(fontFamily: 'Outfit', fontSize: size, fontWeight: FontWeight.w600, color: color, fontFeatures: const [FontFeature.tabularFigures()]);
+  static TextStyle body({double size = 14, Color color = ObsidianColors.textMuted}) => TextStyle(fontFamily: 'Inter', fontSize: size, fontWeight: FontWeight.w400, color: color, height: 1.35);
   static TextStyle label({double size = 12, Color color = ObsidianColors.textMuted}) =>
-      GoogleFonts.inter(fontSize: size, fontWeight: FontWeight.w600, color: color, letterSpacing: 0.2);
+      TextStyle(fontFamily: 'Inter', fontSize: size, fontWeight: FontWeight.w600, color: color, letterSpacing: 0.2);
 }
 
 /// Thème Material 3 sombre appliqué localement au module (le reste de l'application garde son thème).
@@ -86,7 +92,7 @@ class ObsidianTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: ObsidianColors.abyss,
       canvasColor: ObsidianColors.surface,
-      textTheme: GoogleFonts.interTextTheme(ThemeData(brightness: Brightness.dark).textTheme).apply(bodyColor: ObsidianColors.text, displayColor: ObsidianColors.text),
+      textTheme: ThemeData(brightness: Brightness.dark).textTheme.apply(fontFamily: 'Inter').apply(bodyColor: ObsidianColors.text, displayColor: ObsidianColors.text),
       iconTheme: const IconThemeData(color: ObsidianColors.text),
       appBarTheme: base.appBarTheme.copyWith(backgroundColor: Colors.transparent, foregroundColor: ObsidianColors.text, elevation: 0, scrolledUnderElevation: 0),
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent, modalBackgroundColor: Colors.transparent, elevation: 0),

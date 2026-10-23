@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 
+import '../constants/app_text_styles.dart';
 import '../errors/error_handler.dart';
+import 'empty_state_view.dart';
 import 'error_state_view.dart';
 import 'ui.dart';
 
@@ -25,8 +27,9 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final s = context.strato;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyles.h3.copyWith(color: s.text, fontSize: 18))),
       body: FutureBuilder<Uint8List>(
         future: _future,
         builder: (context, snap) {
@@ -37,7 +40,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
               onRetry: () => setState(() => _future = widget.loader()),
             );
           }
-          if (!snap.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snap.hasData) return Center(child: OrbitEmblem(icon: Icons.picture_as_pdf_rounded, color: s.gold));
           return PdfPreview(
             build: (_) async => snap.data!,
             pdfFileName: widget.filename,
@@ -46,6 +49,14 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
             canDebug: false,
             allowSharing: true,
             allowPrinting: true,
+            scrollViewDecoration: const BoxDecoration(color: Colors.transparent),
+            pdfPreviewPageDecoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(6),
+              boxShadow: [BoxShadow(color: s.shadow, blurRadius: 24, offset: const Offset(0, 10))],
+            ),
+            actionBarTheme: PdfActionBarTheme(backgroundColor: s.elevated, iconColor: s.gold),
+            loadingWidget: Center(child: CircularProgressIndicator(color: s.gold)),
           );
         },
       ),

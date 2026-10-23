@@ -13,7 +13,6 @@ class DioClient {
     required SecureStorageService storageService,
     required void Function() onSessionExpired,
     Dio? customDio,
-    HttpClientAdapter? adapter,
   }) {
     final config = FlavorConfig.instance;
     dio = customDio ??
@@ -25,7 +24,6 @@ class DioClient {
             headers: {'Accept': 'application/json', 'Accept-Language': 'fr'},
           ),
         );
-    if (adapter != null) dio.httpClientAdapter = adapter;
 
     // Ordre : relance réseau → authentification → normalisation des erreurs → logs.
     dio.interceptors.addAll([

@@ -163,7 +163,7 @@ class _NfcRadarSheetState extends ConsumerState<NfcRadarSheet> {
       }
     });
     final unavailable = _status != null && _status != NfcStatus.available;
-    final demo = FlavorConfig.instance.localBackend;
+    final demo = FlavorConfig.testTools;
     final busy = state is NfcScanning || state is NfcSharing;
 
     return ConstrainedBox(

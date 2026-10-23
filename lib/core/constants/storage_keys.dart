@@ -16,4 +16,5 @@ class StorageKeys {
   static const String notificationsEnabled = 'pref_notifications_enabled';
   static const String hasCompletedOnboarding = 'pref_has_completed_onboarding';
   static const String nfcCards = 'pref_nfc_cards';
+  static const String apiBaseUrl = 'pref_api_base_url';
 }

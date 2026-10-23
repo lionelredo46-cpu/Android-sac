@@ -7,10 +7,10 @@ class FlavorConfig {
   final Flavor flavor;
   final String appName;
   final String apiBaseUrl;
-  final bool enableLogging;
 
-  /// Démo autonome : l'API est simulée sur l'appareil (voir core/demo/).
-  final bool localBackend;
+  /// URL compilée dans l'application (avant tout changement de serveur en recette).
+  final String defaultApiBaseUrl;
+  final bool enableLogging;
   final Duration connectTimeout;
   final Duration receiveTimeout;
 
@@ -20,8 +20,8 @@ class FlavorConfig {
     required this.flavor,
     required this.appName,
     required this.apiBaseUrl,
+    required this.defaultApiBaseUrl,
     required this.enableLogging,
-    required this.localBackend,
     required this.connectTimeout,
     required this.receiveTimeout,
   });
@@ -31,7 +31,6 @@ class FlavorConfig {
     required String appName,
     required String apiBaseUrl,
     bool enableLogging = false,
-    bool localBackend = false,
     Duration connectTimeout = const Duration(seconds: 15),
     Duration receiveTimeout = const Duration(seconds: 30),
   }) {
@@ -40,10 +39,24 @@ class FlavorConfig {
       flavor: flavor,
       appName: appName,
       apiBaseUrl: override.isNotEmpty ? override : apiBaseUrl,
+      defaultApiBaseUrl: override.isNotEmpty ? override : apiBaseUrl,
       enableLogging: enableLogging,
-      localBackend: localBackend,
       connectTimeout: connectTimeout,
       receiveTimeout: receiveTimeout,
+    );
+  }
+
+  /// Change de serveur sans recompiler (recette) ; null revient à l'URL compilée.
+  static void overrideApiBaseUrl(String? url) {
+    final i = instance;
+    _instance = FlavorConfig._internal(
+      flavor: i.flavor,
+      appName: i.appName,
+      apiBaseUrl: url ?? i.defaultApiBaseUrl,
+      defaultApiBaseUrl: i.defaultApiBaseUrl,
+      enableLogging: i.enableLogging,
+      connectTimeout: i.connectTimeout,
+      receiveTimeout: i.receiveTimeout,
     );
   }
 
@@ -58,4 +71,8 @@ class FlavorConfig {
   static bool get isDev => instance.flavor == Flavor.dev;
   static bool get isStaging => instance.flavor == Flavor.staging;
   static bool get isProd => instance.flavor == Flavor.prod;
+
+  /// Outils de recette (comptes de démonstration, simulation de paiement, NFC simulé) :
+  /// développement et recette uniquement, jamais en production.
+  static bool get testTools => !isProd;
 }

@@ -48,7 +48,7 @@ void main() {
   setUpAll(() async {
     await initializeDateFormatting('fr_FR');
     Intl.defaultLocale = 'fr_FR';
-    FlavorConfig.initialize(flavor: Flavor.dev, appName: 'Test', apiBaseUrl: 'http://localhost', localBackend: true);
+    FlavorConfig.initialize(flavor: Flavor.dev, appName: 'Test', apiBaseUrl: 'http://localhost');
   });
 
   group('Format NFC (NDEF)', () {

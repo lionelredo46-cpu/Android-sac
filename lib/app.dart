@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'core/providers.dart';
 import 'core/router/app_router.dart';
 import 'core/security/app_lock.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/strato_background.dart';
 import 'features/auth/application/session_controller.dart';
 import 'features/children/application/children_providers.dart';
 import 'features/notifications/data/notifications_repository.dart';
@@ -84,6 +86,11 @@ class _UniParentAppState extends ConsumerState<UniParentApp> with WidgetsBinding
       themeMode: ref.watch(themeModeProvider),
       locale: locale,
       routerConfig: ref.watch(routerProvider),
+      // Ciel « Stratosphère » commun à toutes les pages (transparentes).
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: AppTheme.overlayStyle(Theme.of(context).brightness),
+        child: StratoBackground(child: child ?? const SizedBox.shrink()),
+      ),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

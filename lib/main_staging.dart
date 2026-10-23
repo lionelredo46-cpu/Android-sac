@@ -1,4 +1,7 @@
 import 'bootstrap.dart';
 import 'core/config/flavor_config.dart';
 
-void main() => bootstrap(flavor: Flavor.staging, appName: 'UniParent Recette', apiBaseUrl: 'https://api-staging.uniparent.aframgabon.com');
+/// API de recette hébergée sur Railway (données de démonstration, paiements Sandbox).
+const stagingApiBaseUrl = 'https://uniparent-api-production.up.railway.app';
+
+void main() => bootstrap(flavor: Flavor.staging, appName: 'UniParent Recette', apiBaseUrl: stagingApiBaseUrl);

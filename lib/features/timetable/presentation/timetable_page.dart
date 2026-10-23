@@ -158,7 +158,7 @@ class _TimetablePageState extends ConsumerState<TimetablePage> {
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle.light,
             child: Scaffold(
-              backgroundColor: ObsidianColors.abyss,
+              backgroundColor: ObsidianColors.scaffold(context),
               body: LayoutBuilder(
                 builder: (context, c) {
                   final wide = c.maxWidth >= TimetablePage.breakpoint;

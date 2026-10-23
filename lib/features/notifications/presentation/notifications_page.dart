@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/notifications/push_service.dart';
@@ -31,6 +30,16 @@ IconData categoryIcon(String c) => switch (c) {
       _ => Icons.warning_rounded,
     };
 
+Color categoryColor(String c) => switch (c) {
+      'FINANCE' => const Color(0xFFF2C063),
+      'PRESENCE' => const Color(0xFF34D399),
+      'NOTES' => const Color(0xFF8B7BFF),
+      'EMPLOI_DU_TEMPS' => const Color(0xFF7AA8FF),
+      'MESSAGERIE' => const Color(0xFF22D3EE),
+      'DISCIPLINE' => const Color(0xFFFB923C),
+      _ => const Color(0xFFF87171),
+    };
+
 /// Centre de notifications : historique, filtres par catégorie, lecture.
 class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
@@ -56,13 +65,29 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final s = context.strato;
+    Widget chip(String? value, String label) {
+      final selected = _category == value;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: ChoiceChip(
+          avatar: value == null ? null : Icon(categoryIcon(value), size: 16, color: selected ? s.onGold : categoryColor(value)),
+          label: Text(label),
+          selected: selected,
+          selectedColor: s.gold,
+          labelStyle: AppTextStyles.bodySmall.copyWith(color: selected ? s.onGold : s.text, fontWeight: FontWeight.w700),
+          onSelected: (_) => setState(() => _category = value),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(l.notificationsTitle),
         actions: [
           IconButton(
             tooltip: l.markAllRead,
-            icon: const Icon(Icons.done_all_rounded),
+            icon: Icon(Icons.done_all_rounded, color: s.gold),
             onPressed: () async {
               try {
                 await ref.read(notificationsRepositoryProvider).markAllRead();
@@ -73,24 +98,18 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               }
             },
           ),
+          const SizedBox(width: 6),
         ],
       ),
       body: Column(children: [
         SizedBox(
-          height: 56,
+          height: 52,
           child: ListView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.fromLTRB(16, 4, 8, 8),
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 6),
-                child: ChoiceChip(label: Text(l.allPayments), selected: _category == null, onSelected: (_) => setState(() => _category = null)),
-              ),
-              for (final c in ['FINANCE', 'PRESENCE', 'NOTES', 'EMPLOI_DU_TEMPS', 'MESSAGERIE', 'DISCIPLINE'])
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(label: Text(categoryLabel(l, c)), selected: _category == c, onSelected: (_) => setState(() => _category = c)),
-                ),
+              chip(null, l.allPayments),
+              for (final c in ['FINANCE', 'PRESENCE', 'NOTES', 'EMPLOI_DU_TEMPS', 'MESSAGERIE', 'DISCIPLINE']) chip(c, categoryLabel(l, c)),
             ],
           ),
         ),
@@ -103,18 +122,46 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             emptyIcon: Icons.notifications_off_outlined,
             builder: (context, page) => RefreshIndicator(
               onRefresh: () => ref.refresh(notificationsProvider(_category).future),
-              child: ListView.separated(
+              child: ListView.builder(
+                padding: EdgeInsets.fromLTRB(16, 6, 16, 28 + context.bottomInset),
                 itemCount: page.items.length,
-                separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (_, i) {
                   final n = page.items[i];
-                  return ListTile(
-                    tileColor: n.estLu ? null : AppColors.aframPrimary.withValues(alpha: 0.05),
-                    leading: CircleAvatar(backgroundColor: AppColors.aframPrimary.withValues(alpha: 0.1), child: Icon(categoryIcon(n.categorie), color: AppColors.aframPrimary)),
-                    title: Text(n.titre, style: AppTextStyles.bodyMedium.copyWith(fontWeight: n.estLu ? FontWeight.w500 : FontWeight.w800)),
-                    subtitle: Text('${n.corps}\n${Fmt.relative(n.createdAt)}'),
-                    isThreeLine: true,
-                    onTap: () => _open(n),
+                  final color = categoryColor(n.categorie);
+                  return Reveal(
+                    key: ValueKey('${_category}_${n.id}'),
+                    index: i,
+                    child: GlassCard(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(14),
+                      tint: n.estLu ? null : color.withValues(alpha: s.isDark ? 0.08 : 0.05),
+                      borderColor: n.estLu ? null : color.withValues(alpha: 0.4),
+                      onTap: () => _open(n),
+                      semanticLabel: n.titre,
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        GlowIcon(categoryIcon(n.categorie), color: color, size: 42),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            Row(children: [
+                              Expanded(
+                                child: Text(n.titre, style: AppTextStyles.bodyMedium.copyWith(color: s.text, fontWeight: n.estLu ? FontWeight.w600 : FontWeight.w800)),
+                              ),
+                              if (!n.estLu)
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(shape: BoxShape.circle, color: color, boxShadow: [BoxShadow(color: color, blurRadius: 8)]),
+                                ),
+                            ]),
+                            const SizedBox(height: 3),
+                            Text(n.corps, style: AppTextStyles.bodySmall.copyWith(color: s.textMuted)),
+                            const SizedBox(height: 6),
+                            Text(Fmt.relative(n.createdAt), style: AppTextStyles.caption.copyWith(color: s.textFaint)),
+                          ]),
+                        ),
+                      ]),
+                    ),
                   );
                 },
               ),

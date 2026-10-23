@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/ui.dart';
@@ -25,24 +24,28 @@ class AnnouncementsPage extends ConsumerWidget {
         builder: (context, page) => RefreshIndicator(
           onRefresh: () => ref.refresh(announcementsProvider.future),
           child: ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.fromLTRB(16, 6, 16, 28 + context.bottomInset),
             itemCount: page.items.length,
             itemBuilder: (_, i) {
               final a = page.items[i];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+              final s = context.strato;
+              return Reveal(
+                index: i,
+                child: GlassCard(
+                  margin: const EdgeInsets.only(bottom: 12),
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Row(children: [
-                      const Icon(Icons.campaign_rounded, color: AppColors.aframGold),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(a.titre, style: AppTextStyles.h3)),
+                      GlowIcon(Icons.campaign_rounded, color: s.gold, size: 40),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(a.titre, style: AppTextStyles.h3.copyWith(color: s.text)),
+                          Text(Fmt.date(a.datePublication), style: AppTextStyles.caption.copyWith(color: s.textFaint)),
+                        ]),
+                      ),
                     ]),
-                    const SizedBox(height: 4),
-                    Text(Fmt.date(a.datePublication), style: AppTextStyles.caption),
-                    const SizedBox(height: 10),
-                    SelectableText(a.contenu, style: AppTextStyles.bodyMedium),
+                    const SizedBox(height: 12),
+                    SelectableText(a.contenu, style: AppTextStyles.bodyMedium.copyWith(color: s.textMuted)),
                   ]),
                 ),
               );

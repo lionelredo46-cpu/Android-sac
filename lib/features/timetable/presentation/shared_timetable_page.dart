@@ -29,7 +29,7 @@ class SharedTimetablePage extends ConsumerWidget {
     return Theme(
       data: ObsidianTheme.of(Theme.of(context)),
       child: Scaffold(
-        backgroundColor: ObsidianColors.abyss,
+        backgroundColor: ObsidianColors.scaffold(context),
         appBar: AppBar(
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +56,7 @@ class SharedTimetablePage extends ConsumerWidget {
           ],
         ),
         body: DecoratedBox(
-          decoration: const BoxDecoration(gradient: ObsidianColors.background),
+          decoration: ObsidianColors.backdrop(context),
           child: WeekAgenda(data: data, onSlotTap: (_) {}, padding: const EdgeInsets.only(bottom: 32)),
         ),
       ),

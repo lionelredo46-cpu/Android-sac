@@ -18,7 +18,7 @@ class SharedPrefsService {
   Future<bool> setPreferredLocale(String locale) => _prefs.setString(StorageKeys.preferredLocale, locale);
 
   // Thème
-  String get themeMode => _prefs.getString(StorageKeys.themeMode) ?? 'system';
+  String get themeMode => _prefs.getString(StorageKeys.themeMode) ?? 'dark';
   Future<bool> setThemeMode(String mode) => _prefs.setString(StorageKeys.themeMode, mode);
 
   // Enfant actif sélectionné
@@ -32,6 +32,10 @@ class SharedPrefsService {
   // Onboarding
   bool get hasCompletedOnboarding => _prefs.getBool(StorageKeys.hasCompletedOnboarding) ?? false;
   Future<bool> setCompletedOnboarding(bool completed) => _prefs.setBool(StorageKeys.hasCompletedOnboarding, completed);
+
+  // Serveur choisi dans l'application (recette uniquement, voir FlavorConfig.testTools)
+  String? get apiBaseUrl => _prefs.getString(StorageKeys.apiBaseUrl);
+  Future<bool> setApiBaseUrl(String? url) => url == null ? _prefs.remove(StorageKeys.apiBaseUrl) : _prefs.setString(StorageKeys.apiBaseUrl, url);
 
   // Cartes étudiantes NFC associées à un dossier (identifiant de carte → étudiant)
   Map<String, String> get nfcCards {
