@@ -1,0 +1,2 @@
+98c0d9150839460187ece5c5ba53a0ff935fa3bf11a622fa77569b3418d92878 *UniParent-recette-1.0.0+1-arm64-v8a.apk
+cbf4f96f1ff7d34b7f499d1878993f741579c493d2f7e67f3d7d0008ee9ef047 *UniParent-recette-1.0.0+1-armeabi-v7a.apk
