@@ -18,7 +18,7 @@ class SharedPrefsService {
   Future<bool> setPreferredLocale(String locale) => _prefs.setString(StorageKeys.preferredLocale, locale);
 
   // Thème
-  String get themeMode => _prefs.getString(StorageKeys.themeMode) ?? 'dark';
+  String get themeMode => _prefs.getString(StorageKeys.themeMode) ?? 'light';
   Future<bool> setThemeMode(String mode) => _prefs.setString(StorageKeys.themeMode, mode);
 
   // Enfant actif sélectionné
