@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Ciel « Stratosphère » : identique au premier écran Flutter, sans flash blanc au lancement. -->
-    <color name="splash_background">#0B2A5E</color>
+    <!-- Ciel « Stratosphère » : identique au premier écran Flutter (thème clair par défaut), sans flash au lancement. -->
+    <color name="splash_background">#F3F6FD</color>
 </resources>
